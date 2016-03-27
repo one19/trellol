@@ -10,7 +10,7 @@ var error = function(errorMsg) {
   console.log("ERROR", errorMsg);
 };
 
-var getLists = function(allLists, board) {
+var getLists = function(board, allLists) {
   allLists.forEach(function(l, i) {
     var list = {
       name: l.name,
@@ -18,11 +18,15 @@ var getLists = function(allLists, board) {
     }
     var last = false;
     if (i === allLists.length - 1) last = true;
-    Trello.get('/lists/'+l.id+'/cards', finishUp.bind(board, list, last), error);
+    Trello.get('/lists/'+l.id+'/cards', finishUp.bind(this, board, list, last), error);
   });
 }
 
-var finishUp = function(allCards, board, list, last) {
+var finishUp = function(board, list, last, allCards) {
+  console.log('allCards', allCards);
+  console.log('board', board);
+  console.log('list', list);
+  console.log('last', last);
   list.cards = allCards;
   board.lists.push(list);
   if (last) gist.boards.push(board);
@@ -30,14 +34,15 @@ var finishUp = function(allCards, board, list, last) {
 
 var getGist = function(allBoards) {
   allBoards.forEach(function(b) {
+    var name = (b.name.slice(-4) === '[E!]')? b.name.slice(0, -4): b.name;
     var board = {
-      name: b.name,
+      name: name,
       id: b.id,
       back: b.prefs.backgroundImage || b.prefs.backgroundColor,
       lists: [],
       blackLists: []
     }
-    Trello.get('/boards/'+b.id+'/lists', getLists.bind(board), error);
+    Trello.get('/boards/'+b.id+'/lists', getLists.bind(this, board), error);
   });
 }
 
