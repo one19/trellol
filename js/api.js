@@ -10,48 +10,45 @@ var error = function(errorMsg) {
   console.log("ERROR", errorMsg);
 };
 
-var getLists = function(board, blast, allLists) {
-  console.log(board, blast, allLists);
-  // allLists.forEach(function(l, j) {
-  //   var name = (l.name.slice(-4) === '[E!]')? l.name.slice(0, -4): l.name;
-  //   var list = {
-  //     name: name,
-  //     id: l.id
-  //   }
-  //   var last = false;
-  //   if (j === allLists.length - 1) last = true;
-  //   Trello.get('/lists/'+l.id+'/cards', finishUp.bind(this, board, list, last, blast), error);
-  // });
-}
-
-var finishUp = function(board, list, last, blast, allCards) {
-  list.cards = allCards;
-  board.lists.push(list);
-  if (last) gist.boards.push(board);
-  if (last && blast) {
-    setTimeout(function() {
-      //lololol don't judge me. I'm working with someone else's callbacks
-      gist.last = Date.now();
-      window.localStorage.setItem('gist', JSON.stringify(gist));
-      preGist = gist;
-      gist = { boards: [] };
-    }, 5000);
+var getAll = function(board, last, boardData) {
+  console.log('board', board, 'last', last, 'boardData', boardData);
+  board.cards = boardData.cards.length;
+  boardData.lists.forEach(function(l) {
+    var name = (l.name.slice(-4) === '[!E]')? l.name.slice(0, -4): l.name;
+    var cards = _.filter(boardData.cards, {idList: l.id});
+    cards.forEach(function(c) {c.type = "card"});
+    board.lists.push({
+      name: name,
+      type: "list",
+      id: l.id,
+      cards: cards
+    });
+  });
+  gist.boards.push(board);
+  if (last) {
+    console.log('DONE!');
+    if (preGist.blackLists) gist.blackLists = preGist.blackLists;
+    preGist = gist;
+    gist = { boards: [] };
+    window.localStorage.setItem('gist', JSON.stringify(preGist));
   }
 }
 
-var getGist = function(allBoards) {
+var getBoards = function(allBoards) {
   console.log(allBoards);
   allBoards.forEach(function(b, i) {
     var board = {
       name: b.name,
+      type: "board",
       id: b.id,
       back: b.prefs.backgroundImage || b.prefs.backgroundColor,
       lists: [],
-      blackLists: []
+      starred: b.starred,
+      cards: 0
     }
-    var blast = false;
-    if (i === allBoards.length - 1) blast = true;
-    Trello.get('/boards/'+b.id+'?fields=all&actions=all&action_fields=all&actions_limit=1000&cards=all&card_fields=all&card_attachments=true&lists=all&list_fields=all&members=all&member_fields=all&checklists=all&checklist_fields=all&organization=false', getLists.bind(this, board, blast), error);
+    var last = false;
+    if (i === allBoards.length - 1) last = true;
+    Trello.get('/boards/'+b.id+'?fields=all&cards=all&card_fields=all&card_attachments=true&lists=all&list_fields=all&members=all&member_fields=all&checklists=all&checklist_fields=all&organization=false', getAll.bind(this, board, last), error);
   });
 }
 

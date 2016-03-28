@@ -7,17 +7,20 @@
   <link rel="stylesheet" href="css/style.css">
   <script src="js/lodash.min.js"></script>
   <script src="http://code.jquery.com/jquery-1.7.1.min.js"></script>
-  <script src="https://api.trello.com/1/client.js?key=key"></script>
+  <script src="https://api.trello.com/1/client.js?key=KEY"></script>
   <script type="text/javascript" src="js/tinycolor.min.js"></script>
   <script type="text/javascript" src="js/api.js"></script>
 </head>
 <body>
+
+  <div class="topBar">
+    <div class="button main" id="getGist">RELOAD DATA</div>
+    <div class="alert" id="alert"></div>
+    <div class="total" id="total"></div>
+  </div>
   
   <div class="container">
-    <div class="topBar">
-      <div class="button" id="getGist">RELOAD DATA</div>
-      <div class="alert" id="alert"></div>
-    </div>
+    <div id="content"></div>
   </div>
   
   <script type="text/javascript" src="js/front.js"></script>
