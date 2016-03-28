@@ -11,16 +11,17 @@ var error = function(errorMsg) {
 };
 
 var getLists = function(board, blast, allLists) {
-  allLists.forEach(function(l, j) {
-    var name = (l.name.slice(-4) === '[E!]')? l.name.slice(0, -4): l.name;
-    var list = {
-      name: name,
-      id: l.id
-    }
-    var last = false;
-    if (j === allLists.length - 1) last = true;
-    Trello.get('/lists/'+l.id+'/cards', finishUp.bind(this, board, list, last, blast), error);
-  });
+  console.log(board, blast, allLists);
+  // allLists.forEach(function(l, j) {
+  //   var name = (l.name.slice(-4) === '[E!]')? l.name.slice(0, -4): l.name;
+  //   var list = {
+  //     name: name,
+  //     id: l.id
+  //   }
+  //   var last = false;
+  //   if (j === allLists.length - 1) last = true;
+  //   Trello.get('/lists/'+l.id+'/cards', finishUp.bind(this, board, list, last, blast), error);
+  // });
 }
 
 var finishUp = function(board, list, last, blast, allCards) {
@@ -50,7 +51,7 @@ var getGist = function(allBoards) {
     }
     var blast = false;
     if (i === allBoards.length - 1) blast = true;
-    Trello.get('/boards/'+b.id+'/lists', getLists.bind(this, board, blast), error);
+    Trello.get('/boards/'+b.id+'?fields=all&actions=all&action_fields=all&actions_limit=1000&cards=all&card_fields=all&card_attachments=true&lists=all&list_fields=all&members=all&member_fields=all&checklists=all&checklist_fields=all&organization=false', getLists.bind(this, board, blast), error);
   });
 }
 
