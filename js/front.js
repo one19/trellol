@@ -81,7 +81,11 @@ var styleBlob = function(blob, obj) {
     ret["font-size"] = rScale(10, 45, minLists, maxLists, blob.lists.length) + "px";
 
   } else if (blob.type === "list") {
-    obj.attr("title", "CARDS: " + blob.cards.length + "\nRANDOM CARD: " + _.sample(blob.cards).name);
+    var raCard = "";
+    var sampled = _.sample(blob.cards);
+    (!sampled)? raCard = "EMPTY LIST": raCard = sampled.name;
+
+    obj.attr("title", "CARDS: " + blob.cards.length + "\nRANDOM CARD: " + raCard);
     ret["font-size"] = rScale(10, 45, minCards, maxCards, blob.cards.length) + "px";
   }
 
