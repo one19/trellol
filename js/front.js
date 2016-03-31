@@ -35,6 +35,7 @@ var boardsPage = function() {
   var total = 0;
 
   var content = $("#content");
+  if (preGist.boards.length == 0) return error("No Boards; Click reload data!");
   preGist.boards.forEach(function(b) {
     total += b.cards;
     content.append(createBlob(b));
