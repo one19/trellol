@@ -1,5 +1,3 @@
-var maxLists = _.maxBy(preGist.boards, 'lists').lists.length;
-var minLists = _.minBy(preGist.boards, 'lists').lists.length;
 var maxCards = 0;
 var minCards = 0;
 
@@ -70,6 +68,8 @@ var styleBlob = function(blob, obj) {
   var ret = {};
 
   if (blob.type === "board") {
+    var maxLists = _.maxBy(preGist.boards, 'lists').lists.length;
+    var minLists = _.minBy(preGist.boards, 'lists').lists.length;
     var raCard = "";
     var sampled = _.sample(_.sample(blob.lists).cards);
     (!sampled)? raCard = "EMPTY LIST": raCard = sampled.name;
