@@ -8,8 +8,8 @@ var rScale = function (minWanted, maxWanted, minVal, maxVal, val) {
   return Math.round(((bSizeDel) * ((val - minVal)/valDel)) + minWanted);
 }
 
-$("body").on("click", "div.button", function(e) {
-  console.log(e.currentTarget.id);
+$("body").on("click", "h2.button", function(e) {
+  console.log('e', e);
   switch (e.currentTarget.id) {
     case "getGist":
       Trello.get('/member/me/boards', getBoards, error);
@@ -24,6 +24,44 @@ $("body").on("click", "div.button", function(e) {
   }
 });
 
+$("body").on("click", "div.checkbox", function(e) {
+  var c = $("input." + e.currentTarget.className.split(" ").join("."));
+  (c.attr("checked"))? c.attr("checked", false): c.attr("checked", true);
+
+  if (!preGist.blackList) preGist.blackList = {boards: [], lists: []};
+  var classes = e.currentTarget.className;
+  var targetID = _.last(classes.split(" "));
+
+  if (classes.match(/board/gi)) {
+    
+    if (classes.match(/ignore/gi)) {
+      if (!(preGist.blackList.boards.includes(targetID))) {
+        preGist.blackList.boards.push(targetID);
+      } else {
+        _.pull(preGist.blackList.boards, targetID);
+      }
+    } else if (classes.match(/done/gi)) {
+      console.log("Congrats, you're a retard.");
+    } else if (classes.math(/order/gi)) {
+      var ord = _.find(preGist.boards, {id: targetID}).order;
+      (ord)? ord = false: ord = true;
+    }
+
+    setGist(preGist);
+    boardsPage();
+
+  } else if (classes.match(/list/gi)) {
+    if (classes.match(/ignore/gi)) {
+
+    } else if (classes.match(/done/gi)) {
+
+    } else if (classes.math(/order/gi)) {
+
+    }
+  }
+
+});
+
 var killPage = function() {
   $('#content').html("");
 }
@@ -34,7 +72,9 @@ var boardsPage = function() {
 
   var content = $("#content");
   if (preGist.boards.length == 0) return error("No Boards; Click reload data!");
-  preGist.boards.forEach(function(b) {
+  _.filter(preGist.boards, function(e) {
+    return !(preGist.blackList.boards.includes(e.id));
+  }).forEach(function(b) {
     total += b.cards;
     content.append(createBlob(b));
   });
@@ -50,7 +90,7 @@ var listsPage = function(board) {
   var total = 0;
 
   var content = $("#content");
-  content.append($("<div class=\"button\" id=\"boards\">BACK</div>"));
+  content.append($("<h2 class=\"button\" id=\"boards\">BACK</div>"));
   board.lists.forEach(function(l) {
     total += l.cards.length;
     content.append(createBlob(l));
@@ -60,7 +100,28 @@ var listsPage = function(board) {
 }
 
 var createBlob = function(blob) {
-  var ret = $("<div class=\"" + blob.type + " button\" id=\"" + blob.id + "\">" + blob.name + "</div>");
+  var ret = $("<div class=\"" + blob.type + " button " + blob.id + "\">"
+    + "<h2 class=\"main " + blob.type + " button\" id=\"" + blob.id + "\">"
+    + blob.name + "</h2>"
+      + "<div class=\"checkbox ignore " + blob.type + " " + blob.id + "\">"
+        + "<p class=\"checkbox ignore " + blob.type + " " + blob.id + "\">"
+        + "Ignore:</p>"
+        + "<input type=\"checkbox\" class=\"checkbox ignore " + blob.type + " "
+        + blob.id + "\"></input>"
+      + "</div>"
+      + "<div class=\"checkbox done " + blob.type + " " + blob.id + "\">"
+        + "<p class=\"checkbox done " + blob.type + " " + blob.id + "\">"
+        + "Done:</p>"
+        + "<input type=\"checkbox\" class=\"checkbox done " + blob.type + " "
+        + blob.id + "\"></input>"
+      + "</div>"
+      + "<div class=\"checkbox order " + blob.type + " " + blob.id + "\">"
+        + "<p class=\"checkbox order " + blob.type + " " + blob.id + "\">"
+        + "Ordered:</p>"
+        + "<input type=\"checkbox\" class=\"checkbox order " + blob.type + " "
+        + blob.id + "\"></input>"
+      + "</div>"
+    + "</div>");
   return styleBlob(blob, ret);
 }
 

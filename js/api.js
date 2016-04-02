@@ -1,5 +1,5 @@
-var gist = { boards: [] };
-var preGist = JSON.parse(window.localStorage.getItem('gist')) || { boards: [{lists: [{cards: []}]}] };
+var gist = { boards: [], blackList: {boards: [], lists: []} };
+var preGist = JSON.parse(window.localStorage.getItem("gist")) || { boards: [{lists: [{cards: []}]}], blackList: {boards: [], lists: []} };
 
 var success = function(successMsg) {
   console.log(successMsg);
@@ -11,10 +11,10 @@ var error = function(errorMsg) {
 };
 
 var getAll = function(board, last, boardData) {
-  console.log('board', board, 'last', last, 'boardData', boardData);
+  console.log("board", board, "last", last, "boardData", boardData);
   board.cards = boardData.cards.length;
   boardData.lists.forEach(function(l) {
-    var name = (l.name.slice(-4) === '[!E]')? l.name.slice(0, -4): l.name;
+    var name = (l.name.slice(-4) === "[!E]")? l.name.slice(0, -4): l.name;
     var cards = _.filter(boardData.cards, {idList: l.id});
     cards.forEach(function(c) {c.type = "card"});
     board.lists.push({
@@ -26,12 +26,12 @@ var getAll = function(board, last, boardData) {
   });
   gist.boards.push(board);
   if (last) {
-    console.log('DONE!');
-    if (preGist.blackLists) gist.blackLists = preGist.blackLists;
+    console.log("DONE!");
+    if (preGist.blackList) gist.blackList = preGist.blackList;
     preGist = gist;
     gist = { boards: [] };
-    window.localStorage.setItem('gist', JSON.stringify(preGist));
-    console.log('done storing');
+    window.localStorage.setItem("gist", JSON.stringify(preGist));
+    console.log("Done storing!");
   }
   setTimeout(boardsPage(), 5000);
 }
@@ -50,8 +50,13 @@ var getBoards = function(allBoards) {
     }
     var last = false;
     if (i === allBoards.length - 1) last = true;
-    Trello.get('/boards/'+b.id+'?fields=all&cards=all&card_fields=all&card_attachments=true&lists=all&list_fields=all&members=all&member_fields=all&checklists=all&checklist_fields=all&organization=false', getAll.bind(this, board, last), error);
+    Trello.get("/boards/"+b.id+"?fields=all&cards=all&card_fields=all&card_attachments=true&lists=all&list_fields=all&members=all&member_fields=all&checklists=all&checklist_fields=all&organization=false", getAll.bind(this, board, last), error);
   });
+}
+
+var setGist = function(gest) {
+  window.localStorage.setItem("gist", JSON.stringify(gest));
+  console.log("Gist set!")
 }
 
 Trello.authorize({
