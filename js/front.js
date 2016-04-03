@@ -142,10 +142,19 @@ var styleBlob = function(blob, obj) {
   var ret = {};
 
   if (blob.type === "board") {
-    var maxLists = _.maxBy(preGist.boards, 'lists').lists.length;
-    var minLists = _.minBy(preGist.boards, 'lists').lists.length;
+    var filteredBoards = _.filter(preGist.boards, function(e) {
+      return !(preGist.blackList.boards.includes(e.id));
+    });
+    var maxLists = _.maxBy(filteredBoards, 'lists').lists.length;
+    var minLists = _.minBy(filteredBoards, 'lists').lists.length;
     var raCard = "";
-    var sampled = _.sample(_.sample(blob.lists).cards);
+    var sampled = {};
+
+    if (blob.order) {
+      sampled = _.sample(_.first(blob.lists).cards);
+    } else {
+      sampled = _.sample(_.sample(blob.lists).cards);
+    }
     (!sampled)? raCard = "EMPTY LIST": raCard = sampled.name;
     obj.attr("title", "CARDS: " + blob.cards + "\nRANDOM CARD: " + raCard);
     if (blob.back.match(/http|www|\/\//)) {
