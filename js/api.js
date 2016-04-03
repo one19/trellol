@@ -11,22 +11,32 @@ var error = function(errorMsg) {
 };
 
 var getAll = function(board, last, boardData) {
-  console.log("board", board, "last", last, "boardData", boardData);
-  board.cards = boardData.cards.length;
+  var preGistBoard = _.find(preGist.boards, {id: board.id});
+  if (preGistBoard){
+    board.ignore = preGistBoard.ignore;
+    board.order = preGistBoard.order;
+    board.cards = boardData.cards.length;
+  }
   boardData.lists.forEach(function(l) {
     var name = (l.name.slice(-4) === "[!E]")? l.name.slice(0, -4): l.name;
     var cards = _.filter(boardData.cards, {idList: l.id});
+    var preGistList = {};
+    if (preGistBoard) {
+      preGistList = _.find(preGistBoard.lists, {id: l.id});
+    }
     cards.forEach(function(c) {c.type = "card"});
     board.lists.push({
       name: name,
       type: "list",
       id: l.id,
-      cards: cards
+      cards: cards,
+      ignore: preGistList.ignore,
+      done: preGistList.done,
+      order: preGistList.order
     });
   });
   gist.boards.push(board);
   if (last) {
-    console.log("DONE!");
     if (preGist.blackList) gist.blackList = preGist.blackList;
     preGist = gist;
     gist = { boards: [] };

@@ -33,18 +33,25 @@ $("body").on("click", "div.checkbox", function(e) {
   var targetID = _.last(classes.split(" "));
 
   if (classes.match(/board/gi)) {
+    var bN = _.findIndex(preGist.boards, {id: targetID});
     
     if (classes.match(/ignore/gi)) {
       if (!(preGist.blackList.boards.includes(targetID))) {
+        preGist.boards[bN].ignore = true;
         preGist.blackList.boards.push(targetID);
       } else {
+        preGist.boards[bN].ignore = false;
         _.pull(preGist.blackList.boards, targetID);
       }
     } else if (classes.match(/done/gi)) {
       console.log("Congrats, you're a retard.");
-    } else if (classes.math(/order/gi)) {
-      var ord = _.find(preGist.boards, {id: targetID}).order;
-      (ord)? ord = false: ord = true;
+    } else if (classes.match(/order/gi)) {
+      if (preGist.boards[bN].order) {
+        preGist.boards[bN].order = false;
+      } else {
+        preGist.boards[bN].order = true;
+      }
+      console.log('pregist changed:', preGist);
     }
 
     setGist(preGist);
@@ -100,6 +107,12 @@ var listsPage = function(board) {
 }
 
 var createBlob = function(blob) {
+  var ignoreChecked;
+  var doneChecked;
+  var orderChecked;
+  if (blob.ignore) ignoreChecked = " checked=\"true\"";
+  if (blob.done) doneChecked = " checked=\"true\"";
+  if (blob.order) orderChecked = " checked=\"true\"";
   var ret = $("<div class=\"" + blob.type + " button " + blob.id + "\">"
     + "<h2 class=\"main " + blob.type + " button\" id=\"" + blob.id + "\">"
     + blob.name + "</h2>"
@@ -107,19 +120,19 @@ var createBlob = function(blob) {
         + "<p class=\"checkbox ignore " + blob.type + " " + blob.id + "\">"
         + "Ignore:</p>"
         + "<input type=\"checkbox\" class=\"checkbox ignore " + blob.type + " "
-        + blob.id + "\"></input>"
+        + blob.id + "\"" + ignoreChecked + "></input>"
       + "</div>"
       + "<div class=\"checkbox done " + blob.type + " " + blob.id + "\">"
         + "<p class=\"checkbox done " + blob.type + " " + blob.id + "\">"
         + "Done:</p>"
         + "<input type=\"checkbox\" class=\"checkbox done " + blob.type + " "
-        + blob.id + "\"></input>"
+        + blob.id + "\"" + doneChecked + "></input>"
       + "</div>"
       + "<div class=\"checkbox order " + blob.type + " " + blob.id + "\">"
         + "<p class=\"checkbox order " + blob.type + " " + blob.id + "\">"
         + "Ordered:</p>"
         + "<input type=\"checkbox\" class=\"checkbox order " + blob.type + " "
-        + blob.id + "\"></input>"
+        + blob.id + "\"" + orderChecked + "></input>"
       + "</div>"
     + "</div>");
   return styleBlob(blob, ret);
