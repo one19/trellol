@@ -17,6 +17,16 @@ $("body").on("click", "h2.button", function(e) {
     case "boards":
       boardsPage();
       break;
+    case "ignore":
+      preGist.state.ignore = false;
+      setGist(preGist);
+      boardsPage();
+      break;
+    case "noignore":
+      preGist.state.ignore = true;
+      setGist(preGist);
+      boardsPage();
+      break;
     default:
       var board = _.find(preGist.boards, {id: e.currentTarget.id})
       if (board) listsPage(board);
@@ -44,7 +54,7 @@ $("body").on("click", "div.checkbox", function(e) {
         _.pull(preGist.blackList.boards, targetID);
       }
     } else if (classes.match(/done/gi)) {
-      console.log("Congrats, you're a retard.");
+      console.log("Congrats; you're a retard.");
     } else if (classes.match(/order/gi)) {
       if (preGist.boards[bN].order) {
         preGist.boards[bN].order = false;
@@ -69,18 +79,37 @@ $("body").on("click", "div.checkbox", function(e) {
 
 });
 
+var killIgnoreButton = function() {
+  $("#ignore").remove();
+  $("#noignore").remove();
+}
+
 var killPage = function() {
-  $('#content').html("");
+  $("#content").html("");
 }
 
 var boardsPage = function() {
+  killIgnoreButton();
   killPage();
   var total = 0;
-
+  var button = $("<h2></h2>").addClass("button main");
   var content = $("#content");
   if (preGist.boards.length == 0) return error("No Boards; Click reload data!");
+
+  //show/hide ignored button
+  if (preGist.state.ignore) {
+    button.attr("id", "ignore").text("SHOW IGNORED");
+  } else {
+    button.attr("id", "noignore").text("HIDE IGNORED");
+  }
+  $(".topBar").append(button);
+
   _.filter(preGist.boards, function(e) {
-    return !(preGist.blackList.boards.includes(e.id));
+    if (preGist.state.ignore) {
+      return !(preGist.blackList.boards.includes(e.id));
+    } else {
+      return true;
+    }
   }).forEach(function(b) {
     total += b.cards;
     content.append(createBlob(b));

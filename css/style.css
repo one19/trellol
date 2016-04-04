@@ -71,7 +71,7 @@ input.checkbox {
   z-index: -1;
 }
 
-#ignore {
+#ignore, #noignore {
   float: right;
   clear: both;
 }

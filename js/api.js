@@ -1,5 +1,5 @@
-var gist = { boards: [], blackList: {boards: [], lists: []} };
-var preGist = JSON.parse(window.localStorage.getItem("gist")) || { boards: [{lists: [{cards: []}]}], blackList: {boards: [], lists: []} };
+var gist = { boards: [], blackList: {boards: [], lists: []}, state: {} };
+var preGist = JSON.parse(window.localStorage.getItem("gist")) || { boards: [{lists: [{cards: []}]}], blackList: {boards: [], lists: []}, state: {} };
 
 var success = function(successMsg) {
   console.log(successMsg);
