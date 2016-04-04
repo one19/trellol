@@ -24,12 +24,15 @@ h2 {
   background: -webkit-linear-gradient(top,  rgba(157,213,58,1) 0%,rgba(161,213,79,1) 50%,rgba(128,194,23,1) 51%,rgba(124,188,10,1) 100%); /* Chrome10-25,Safari5.1-6 */
   background: linear-gradient(to bottom,  rgba(157,213,58,1) 0%,rgba(161,213,79,1) 50%,rgba(128,194,23,1) 51%,rgba(124,188,10,1) 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
   filter: progid:DXImageTransform.Microsoft.gradient( startColorstr="#9dd53a", endColorstr="#7cbc0a",GradientType=0 ); /* IE6-9 */
-  margin: 5px;
 }
 
 .container {
   width: 960px;
   margin: 0 auto;
+}
+
+.topBar {
+  position: relative;
 }
 
 .alert {
@@ -66,4 +69,9 @@ div.checkbox {
 input.checkbox {
   position: relative;
   z-index: -1;
+}
+
+#ignore {
+  float: right;
+  clear: both;
 }

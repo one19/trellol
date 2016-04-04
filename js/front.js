@@ -62,7 +62,7 @@ $("body").on("click", "div.checkbox", function(e) {
 
     } else if (classes.match(/done/gi)) {
 
-    } else if (classes.math(/order/gi)) {
+    } else if (classes.match(/order/gi)) {
 
     }
   }
