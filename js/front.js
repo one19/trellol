@@ -9,27 +9,33 @@ var rScale = function (minWanted, maxWanted, minVal, maxVal, val) {
 }
 
 $("body").on("click", "h2.button", function(e) {
-  console.log('e', e);
   switch (e.currentTarget.id) {
     case "getGist":
       Trello.get('/member/me/boards', getBoards, error);
       break;
     case "boards":
-      boardsPage();
+      preGist.state.page = "board";
+      setGist(preGist);
+      redrawPage(preGist.state.obj);
       break;
     case "ignore":
       preGist.state.ignore = false;
       setGist(preGist);
-      boardsPage();
+      redrawPage(preGist.state.obj);
       break;
     case "noignore":
       preGist.state.ignore = true;
       setGist(preGist);
-      boardsPage();
+      redrawPage(preGist.state.obj);
       break;
     default:
-      var board = _.find(preGist.boards, {id: e.currentTarget.id})
-      if (board) listsPage(board);
+      var board = _.find(preGist.boards, {id: e.currentTarget.id});
+      if (board) {
+        preGist.state.obj = board;
+        preGist.state.page = "list";
+        setGist(preGist);
+        redrawPage(preGist.state.obj);
+      }
       break;
   }
 });
@@ -65,7 +71,7 @@ $("body").on("click", "div.checkbox", function(e) {
     }
 
     setGist(preGist);
-    boardsPage();
+    redrawPage(preGist.state.obj);
 
   } else if (classes.match(/list/gi)) {
     if (classes.match(/ignore/gi)) {
@@ -83,18 +89,14 @@ var killIgnoreButton = function() {
   $("#ignore").remove();
   $("#noignore").remove();
 }
-
 var killPage = function() {
   $("#content").html("");
 }
 
-var boardsPage = function() {
-  killIgnoreButton();
+var redrawPage = function(obj) {
   killPage();
-  var total = 0;
+  killIgnoreButton();
   var button = $("<h2></h2>").addClass("button main");
-  var content = $("#content");
-  if (preGist.boards.length == 0) return error("No Boards; Click reload data!");
 
   //show/hide ignored button
   if (preGist.state.ignore) {
@@ -103,6 +105,18 @@ var boardsPage = function() {
     button.attr("id", "noignore").text("HIDE IGNORED");
   }
   $(".topBar").append(button);
+
+  if (preGist.state.page === "board") {
+    boardsPage();
+  } else if (preGist.state.page === "list") {
+    listsPage(obj);
+  }
+}
+
+var boardsPage = function() {
+  var total = 0;
+  var content = $("#content");
+  if (preGist.boards.length == 0) return error("No Boards; Click reload data!");
 
   _.filter(preGist.boards, function(e) {
     if (preGist.state.ignore) {
@@ -205,4 +219,4 @@ var styleBlob = function(blob, obj) {
   return obj.css(ret);;
 }
 
-boardsPage();
+redrawPage(preGist.state.obj);

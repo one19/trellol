@@ -38,6 +38,7 @@ var getAll = function(board, last, boardData) {
   gist.boards.push(board);
   if (last) {
     if (preGist.blackList) gist.blackList = preGist.blackList;
+    if (preGist.state) gist.state = preGist.state;
     preGist = gist;
     gist = { boards: [] };
     window.localStorage.setItem("gist", JSON.stringify(preGist));
