@@ -82,9 +82,17 @@ $("body").on("click", "div.checkbox", function(e) {
         _.pull(preGist.blackList.lists, targetID);
       }
     } else if (classes.match(/done/gi)) {
-
+      if (preGist.boards[bN].lists[lN].done) {
+        preGist.boards[bN].lists[lN].done = false;
+      } else {
+        preGist.boards[bN].lists[lN].done = true;
+      }
     } else if (classes.match(/order/gi)) {
-
+      if (preGist.boards[bN].lists[lN].order) {
+        preGist.boards[bN].lists[lN].order = false;
+      } else {
+        preGist.boards[bN].lists[lN].order = true;
+      }
     }
     preGist.state.obj = preGist.boards[bN];
   }
@@ -143,21 +151,22 @@ var boardsPage = function() {
 
 var listsPage = function(board) {
   killPage();
+  var filteredLists = _.filter(board.lists, function(e) {
+    if (!preGist.state.ignore) return true;
+    return !(preGist.blackList.lists.includes(e.id));
+  });
+  var total = _.reduce(board.lists, function(sum, n) {
+    if (n.done) return sum;
+    if (preGist.blackList.lists.includes(n.id) && preGist.state.ignore) return sum;
+    return sum + n.cards.length;
+  }, 0);
   //LOOK AWAY LOOK AWAY, THERE ISN'T GLOBAL POLLUTION & MUTATION HAPPENING HERE!
-  maxCards = _.maxBy(board.lists, "cards").cards.length;
-  minCards = _.minBy(board.lists, "cards").cards.length;
-  var total = 0;
+  maxCards = _.maxBy(filteredLists, "cards").cards.length;
+  minCards = _.minBy(filteredLists, "cards").cards.length;
 
   var content = $("#content");
   content.append($("<h2 class=\"button\" id=\"boards\">BACK</div>"));
-  _.filter(board.lists, function(e) {
-    if (preGist.state.ignore) {
-      return !(preGist.blackList.lists.includes(e.id));
-    } else {
-      return true;
-    }
-  }).forEach(function(l) {
-    total += l.cards.length;
+  filteredLists.forEach(function(l) {
     content.append(createBlob(l));
   });
 
@@ -220,15 +229,24 @@ var styleBlob = function(blob, obj) {
     } else {
       ret["background-color"] = blob.back;
     }
-    ret["font-size"] = rScale(10, 45, minLists, maxLists, blob.lists.length) + "px";
+    ret["font-size"] = rScale(10, 45, minLists, maxLists, blob.lists.length)
+      + "px";
 
   } else if (blob.type === "list") {
     var raCard = "";
-    var sampled = _.sample(blob.cards);
+
+    if (blob.order) {
+      sampled = _.first(blob.cards);
+    } else {
+      sampled = _.sample(blob.cards);
+    }
+
     (!sampled)? raCard = "EMPTY LIST": raCard = sampled.name;
 
-    obj.attr("title", "CARDS: " + blob.cards.length + "\nRANDOM CARD: " + raCard);
-    ret["font-size"] = rScale(10, 45, minCards, maxCards, blob.cards.length) + "px";
+    obj.attr("title", "CARDS: " + blob.cards.length
+      + "\nRANDOM CARD: " + raCard);
+    ret["font-size"] = rScale(10, 45, minCards, maxCards, blob.cards.length)
+      + "px";
   }
 
   return obj.css(ret);;
