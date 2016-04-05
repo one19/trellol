@@ -28,3 +28,5 @@ Place this api key into the api script link in `index.html` after `key=`
 * Decide on electron use
 * Add card-movement commands to cli
 * Add CLI visuals
+
+[See it in action!](http://trellol.bitballoon.com)
