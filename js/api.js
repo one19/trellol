@@ -41,7 +41,7 @@ var getAll = function(board, last, boardData) {
     if (preGist.state) gist.state = preGist.state;
     preGist = gist;
     gist = { boards: [] };
-    window.localStorage.setItem("gist", JSON.stringify(preGist));
+    setGist(pregist);
     console.log("Done storing!");
   }
   setTimeout(boardsPage(), 5000);

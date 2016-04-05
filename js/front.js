@@ -6,7 +6,7 @@ var rScale = function (minWanted, maxWanted, minVal, maxVal, val) {
   var valDel = maxVal - minVal;
 
   return Math.round(((bSizeDel) * ((val - minVal)/valDel)) + minWanted);
-}
+};
 
 $("body").on("click", "h2.button", function(e) {
   switch (e.currentTarget.id) {
@@ -67,21 +67,30 @@ $("body").on("click", "div.checkbox", function(e) {
       } else {
         preGist.boards[bN].order = true;
       }
-      console.log('pregist changed:', preGist);
     }
 
-    setGist(preGist);
-    redrawPage(preGist.state.obj);
-
   } else if (classes.match(/list/gi)) {
-    if (classes.match(/ignore/gi)) {
+    var bN = _.findIndex(preGist.boards, {id: preGist.state.obj.id});
+    var lN = _.findIndex(preGist.boards[bN].lists, {id: targetID});
 
+    if (classes.match(/ignore/gi)) {
+      if (!(preGist.blackList.lists.includes(targetID))) {
+        preGist.boards[bN].lists[lN].ignore = true;
+        preGist.blackList.lists.push(targetID);
+      } else {
+        preGist.boards[bN].lists[lN].ignore = false;
+        _.pull(preGist.blackList.lists, targetID);
+      }
     } else if (classes.match(/done/gi)) {
 
     } else if (classes.match(/order/gi)) {
 
     }
+    preGist.state.obj = preGist.boards[bN];
   }
+
+  setGist(preGist);
+  redrawPage(preGist.state.obj);
 
 });
 
@@ -90,7 +99,7 @@ var killIgnoreButton = function() {
   $("#noignore").remove();
 }
 var killPage = function() {
-  $("#content").html("");
+  $("#content").children().remove();
 }
 
 var redrawPage = function(obj) {
@@ -141,7 +150,13 @@ var listsPage = function(board) {
 
   var content = $("#content");
   content.append($("<h2 class=\"button\" id=\"boards\">BACK</div>"));
-  board.lists.forEach(function(l) {
+  _.filter(board.lists, function(e) {
+    if (preGist.state.ignore) {
+      return !(preGist.blackList.lists.includes(e.id));
+    } else {
+      return true;
+    }
+  }).forEach(function(l) {
     total += l.cards.length;
     content.append(createBlob(l));
   });
