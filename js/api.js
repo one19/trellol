@@ -12,7 +12,7 @@ var error = function(errorMsg) {
 
 var getAll = function(board, last, boardData) {
   var preGistBoard = _.find(preGist.boards, {id: board.id});
-  if (preGistBoard){
+  if (preGistBoard) {
     board.ignore = preGistBoard.ignore;
     board.order = preGistBoard.order;
     board.cards = boardData.cards.length;
@@ -24,12 +24,25 @@ var getAll = function(board, last, boardData) {
     if (preGistBoard) {
       preGistList = _.find(preGistBoard.lists, {id: l.id});
     }
-    cards.forEach(function(c) {c.type = "card"});
+    var simpleCards = cards.map( function (e) {
+      var attachments = e.attachments.map( function (i) {return i.name} );
+      return {
+        id: e.id,
+        attachments: attachments,
+        dateLastActivity: e.dateLastActivity,
+        name: e.name,
+        shortUrl: e.shortUrl,
+        idBoard: e.idBoard,
+        idList: e.idList,
+        type: "card"
+      };
+    });
     board.lists.push({
       name: name,
       type: "list",
       id: l.id,
-      cards: cards,
+      idBoard: l.idBoard,
+      cards: simpleCards,
       ignore: preGistList.ignore,
       done: preGistList.done,
       order: preGistList.order
@@ -41,10 +54,10 @@ var getAll = function(board, last, boardData) {
     if (preGist.state) gist.state = preGist.state;
     preGist = gist;
     gist = { boards: [] };
-    setGist(pregist);
+    setGist(preGist);
     console.log("Done storing!");
   }
-  setTimeout(boardsPage(), 5000);
+  setTimeout(redrawPage(preGist.state.obj), 5000);
 }
 
 var getBoards = function(allBoards) {

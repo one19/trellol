@@ -8,7 +8,6 @@ Place this api key into the api script link in `index.html` after `key=`
 
 ###TODO
 * Refactor `front.js` into a cleaner collection of js files
-* Fix the error that appends tons of boards when fetching your Trello data
 * Only allow one list per board to be the `Done` list
 * Style lists to board page background
 * Decide on DB use, or just JSON file store
