@@ -17,6 +17,7 @@ var getAll = function(board, last, boardData) {
     board.order = preGistBoard.order;
     board.cards = boardData.cards.length;
   }
+  board.cards = 0;
   boardData.lists.forEach(function(l) {
     var name = (l.name.slice(-4) === "[!E]")? l.name.slice(0, -4): l.name;
     var cards = _.filter(boardData.cards, {idList: l.id});
