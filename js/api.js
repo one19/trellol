@@ -47,6 +47,7 @@ var getAll = function(board, last, boardData) {
       done: preGistList.done,
       order: preGistList.order
     });
+    board.cards += cards.length;
   });
   gist.boards.push(board);
   if (last) {
