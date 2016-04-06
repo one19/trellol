@@ -61,7 +61,6 @@ var getAll = function(board, last, boardData) {
 }
 
 var getBoards = function(allBoards) {
-  console.log(allBoards);
   allBoards.forEach(function(b, i) {
     var board = {
       name: b.name,

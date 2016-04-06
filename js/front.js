@@ -14,6 +14,7 @@ $("body").on("click", "h2.button", function(e) {
       Trello.get('/member/me/boards', getBoards, error);
       break;
     case "boards":
+      // window.history.pushState({}, "Home", '/');
       preGist.state.page = "board";
       setGist(preGist);
       redrawPage(preGist.state.obj);
@@ -31,6 +32,7 @@ $("body").on("click", "h2.button", function(e) {
     default:
       var board = _.find(preGist.boards, {id: e.currentTarget.id});
       if (board) {
+        // window.history.pushState(board, board.name, '/' + board.id);
         preGist.state.obj = board;
         preGist.state.page = "list";
         setGist(preGist);
@@ -50,7 +52,7 @@ $("body").on("click", "div.checkbox", function(e) {
 
   if (classes.match(/board/gi)) {
     var bN = _.findIndex(preGist.boards, {id: targetID});
-    
+
     if (classes.match(/ignore/gi)) {
       if (!(preGist.blackList.boards.includes(targetID))) {
         preGist.boards[bN].ignore = true;
@@ -165,7 +167,7 @@ var listsPage = function(board) {
   minCards = _.minBy(filteredLists, "cards").cards.length;
 
   var content = $("#content");
-  content.append($("<h2 class=\"button\" id=\"boards\">BACK</div>"));
+  content.append($("<h2 class=\"button main\" id=\"boards\">BACK</div>"));
   filteredLists.forEach(function(l) {
     content.append(createBlob(l));
   });
@@ -239,6 +241,11 @@ var styleBlob = function(blob, obj) {
       sampled = _.first(blob.cards);
     } else {
       sampled = _.sample(blob.cards);
+    }
+    if (preGist.state.obj.back.match(/http|www|\/\//)) {
+      ret["background-image"] = "url(" + preGist.state.obj.back + ")";
+    } else {
+      ret["background-color"] = preGist.state.obj.back;
     }
 
     (!sampled)? raCard = "EMPTY LIST": raCard = sampled.name;

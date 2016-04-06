@@ -9,7 +9,6 @@ Place this api key into the api script link in `index.html` after `key=`
 ###TODO
 * Refactor `front.js` into a cleaner collection of js files
 * Only allow one list per board to be the `Done` list
-* Style lists to board page background
 * Decide on DB use, or just JSON file store
 * Store localhost information to JSON file/DB
 * Add burndown screen
@@ -27,5 +26,6 @@ Place this api key into the api script link in `index.html` after `key=`
 * Decide on electron use
 * Add card-movement commands to cli
 * Add CLI visuals
+* Import MD doc of headers/lists into board/list/cards
 
 [See it in action!](http://trellol.bitballoon.com)
