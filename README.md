@@ -28,4 +28,7 @@ Place this api key into the api script link in `index.html` after `key=`
 * Add CLI visuals
 * Import MD doc of headers/lists into board/list/cards
 
+###BUGS
+* Fix the impromptu ugliness in the patch for empty boards and lists
+
 [See it in action!](http://trellol.bitballoon.com)

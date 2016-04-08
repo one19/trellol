@@ -95,7 +95,7 @@ $("body").on("click", "div.checkbox", function(e) {
       } else {
         preGist.boards[bN].lists[lN].order = true;
       }
-    }
+    } ` `
     preGist.state.obj = preGist.boards[bN];
   }
 
@@ -157,12 +157,19 @@ var listsPage = function(board) {
     if (!preGist.state.ignore) return true;
     return !(preGist.blackList.lists.includes(e.id));
   });
+  if (!preGist.state.ignore) {
+    filteredLists = _.find(preGist.boards, {id: board.id}).lists;
+  }
   var total = _.reduce(board.lists, function(sum, n) {
     if (n.done) return sum;
     if (preGist.blackList.lists.includes(n.id) && preGist.state.ignore) return sum;
     return sum + n.cards.length;
   }, 0);
   //LOOK AWAY LOOK AWAY, THERE ISN'T GLOBAL POLLUTION & MUTATION HAPPENING HERE!
+  //fixes the odd case of all-hidden lists resulting in errors
+  if (filteredLists.length === 0) {
+    filteredLists[0] = {cards: [0, 0]};
+  }
   maxCards = _.maxBy(filteredLists, "cards").cards.length;
   minCards = _.minBy(filteredLists, "cards").cards.length;
 
@@ -214,6 +221,10 @@ var styleBlob = function(blob, obj) {
     var filteredBoards = _.filter(preGist.boards, function(e) {
       return !(preGist.blackList.boards.includes(e.id));
     });
+    //fixes the odd case of all-hidden boards resulting in errors
+    if ((filteredBoards.length === 0) && !preGist.state.ignore) {
+      filteredBoards = preGist.boards;
+    }
     var maxLists = _.maxBy(filteredBoards, 'lists').lists.length;
     var minLists = _.minBy(filteredBoards, 'lists').lists.length;
     var raCard = "";
