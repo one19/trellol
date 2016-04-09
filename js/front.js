@@ -311,6 +311,7 @@ var createBlob = function(blob) {
 
 var styleBlob = function(blob, obj) {
   var ret = {};
+  var boardBack;
 
   if (blob.type === "board") {
     var filteredBoards = _.filter(preGist.boards, function(e) {
@@ -332,11 +333,7 @@ var styleBlob = function(blob, obj) {
     }
     (!sampled)? raCard = "EMPTY LIST": raCard = sampled.name;
     obj.attr("title", "CARDS: " + blob.cards + "\nRANDOM CARD: " + raCard);
-    if (blob.back.match(/http|www|\/\//)) {
-      ret["background-image"] = "url(" + blob.back + ")";
-    } else {
-      ret["background-color"] = blob.back;
-    }
+    boardBack = blob.back;
     ret["font-size"] = rScale(10, 45, minLists, maxLists, blob.lists.length)
       + "px";
 
@@ -348,12 +345,7 @@ var styleBlob = function(blob, obj) {
     } else {
       sampled = _.sample(blob.cards);
     }
-    if (preGist.state.obj.back.match(/http|www|\/\//)) {
-      ret["background-image"] = "url(" + preGist.state.obj.back + ")";
-    } else {
-      ret["background-color"] = preGist.state.obj.back;
-    }
-
+    boardBack = preGist.state.obj.back;
     (!sampled)? raCard = "EMPTY LIST": raCard = sampled.name;
 
     obj.attr("title", "CARDS: " + blob.cards.length
@@ -361,15 +353,20 @@ var styleBlob = function(blob, obj) {
     ret["font-size"] = rScale(10, 45, minCards, maxCards, blob.cards.length)
       + "px";
   } else {
-    var boardBack = _.find(preGist.boards, {id: blob.idBoard}).back
-    if (boardBack.match(/http|www|\/\//)) {
-      ret["background-image"] = "url(" + boardBack + ")";
-    } else {
-      ret["background-color"] = boardBack;
-    }
+    boardBack = _.find(preGist.boards, {id: blob.idBoard}).back;
   }
+  ret = styleBack(boardBack, ret);
 
   return obj.css(ret);;
+}
+
+var styleBack = function(obj, ret) {
+  if (obj.match(/http|www|\/\//)) {
+    ret["background-image"] = "url(" + obj + ")";
+  } else {
+    ret["background-color"] = obj;
+  }
+  return ret;
 }
 
 redrawPage(preGist.state.obj);
