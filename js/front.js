@@ -165,6 +165,7 @@ $("body").on("click", "div.checkbox", function(e) {
         preGist.state.obj = preGist.boards[bN].lists[lN];
         removed.done = true;
         preGist.boards[bN].lists[dN].cards.push(removed);
+        moveCardToList(targetID, doneList.id);
       }
     } else if (classes.match(/ignore|order/gi)) {
       console.log("Congrats; you're a retard.");
@@ -180,6 +181,7 @@ $("body").on("click", "div.checkbox", function(e) {
         preGist.state.obj = preGist.boards[bN].lists[lN];
         removed.fail = true;
         preGist.boards[bN].lists[fN].cards.push(removed);
+        moveCardToList(targetID, failList.id);
       }
     }
 

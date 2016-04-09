@@ -80,6 +80,11 @@ var getBoards = function(allBoards) {
   });
 }
 
+var moveCardToList = function(cardId, listId) {
+  console.log('moving a card from one place to another')
+  Trello.put("/cards/" + cardId + "/idList", {value: listId});
+}
+
 var setGist = function(gest) {
   window.localStorage.setItem("gist", JSON.stringify(gest));
 }
