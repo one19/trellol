@@ -323,7 +323,9 @@ var styleBlob = function(blob, obj) {
   var ret = {};
   var boardBack;
 
-  if (blob.type === "board") {
+  if (!blob.type) {
+    return console.log('Way to go dingus, you hid all of everything.');
+  } else if (blob.type === "board") {
     var filteredBoards = _.filter(preGist.boards, function(e) {
       return !(preGist.blackList.boards.includes(e.id));
     });
@@ -362,7 +364,7 @@ var styleBlob = function(blob, obj) {
       + "\nRANDOM CARD: " + raCard);
     ret["font-size"] = rScale(10, 45, minCards, maxCards, blob.cards.length)
       + "px";
-  } else {
+  } else if (blob.type === "card") {
     boardBack = _.find(preGist.boards, {id: blob.idBoard}).back;
   }
   ret = styleBack(boardBack, ret);
