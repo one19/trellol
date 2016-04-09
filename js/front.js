@@ -30,7 +30,17 @@ $("body").on("click", "h2.button", function(e) {
       break;
     case "boards":
       // window.history.pushState({}, "Home", '/');
+      $(".alert").text("");
       preGist.state.page = "board";
+      setGist(preGist);
+      redrawPage(null);
+      break;
+    case "lists":
+      $(".alert").text("");
+      var boardId = preGist.state.obj.idBoard;
+      // window.history.pushState({}, "Home", '/' + idBoard);
+      preGist.state.page = "list";
+      preGist.state.obj = _.find(preGist.boards, {id: boardId});
       setGist(preGist);
       redrawPage(preGist.state.obj);
       break;
@@ -44,14 +54,25 @@ $("body").on("click", "h2.button", function(e) {
       setGist(preGist);
       redrawPage(preGist.state.obj);
       break;
-    default: //travel to list view
-      var board = _.find(preGist.boards, {id: e.currentTarget.id});
-      if (board) {
+    default: //travel between views
+      if (preGist.state.page === "board") {
+        var board = _.find(preGist.boards, {id: e.currentTarget.id})
         // window.history.pushState(board, board.name, '/' + board.id);
         preGist.state.obj = board;
         preGist.state.page = "list";
         setGist(preGist);
         redrawPage(preGist.state.obj);
+      } else if (preGist.state.page === "list") {
+        var list = _.find(preGist.state.obj.lists, {id: e.currentTarget.id});
+        // window.history.pushState(board, board.name, '/' + list.idBoard + '/' + list.id);
+        preGist.state.obj = list;
+        preGist.state.page = "card";
+        setGist(preGist);
+        redrawPage(preGist.state.obj);
+      } else if (preGist.state.page === "card") {
+        var card = _.find(preGist.state.obj.cards, {id: e.currentTarget.id});
+        var win = window.open(card.shortUrl, '_blank');
+        win.focus();
       }
       break;
   }
@@ -116,8 +137,44 @@ $("body").on("click", "div.checkbox", function(e) {
       } else {
         preGist.boards[bN].lists[lN].order = true;
       }
-    } ` `
+    }
     preGist.state.obj = preGist.boards[bN];
+
+  } else if (classes.match(/card/gi)) {
+    var bN = _.findIndex(preGist.boards, {id: preGist.state.obj.idBoard});
+    var lN = _.findIndex(preGist.boards[bN].lists, {id: preGist.state.obj.id});
+    var cN = _.findIndex(preGist.boards[bN].lists[lN].cards, {id: targetID});
+
+    if (classes.match(/done/gi)) {
+      var doneList = _.find(preGist.boards[bN].lists, {done: true});
+      if (!doneList) {
+        return $(".alert").text("No designated DONE list.");
+      } else if (doneList.id === preGist.state.obj.id) {
+        return $(".alert").text("This task is already done.");
+      } else {
+        var dN = _.findIndex(preGist.boards[bN].lists, {id: doneList.id});
+        var removed = preGist.boards[bN].lists[lN].cards.splice(cN, 1)[0];
+        preGist.state.obj = preGist.boards[bN].lists[lN];
+        removed.done = true;
+        preGist.boards[bN].lists[dN].cards.push(removed);
+      }
+    } else if (classes.match(/ignore|order/gi)) {
+      console.log("Congrats; you're a retard.");
+    } else if (classes.match(/fail/gi)) {
+      var failList = _.find(preGist.boards[bN].lists, {fail: true});
+      if (!failList) {
+        return $(".alert").text("No designated FAILURE list.");
+      } else if (failList.id === preGist.state.obj.id) {
+        return $(".alert").text("You failed at this task already.");
+      } else {
+        var fN = _.findIndex(preGist.boards[bN].lists, {id: failList.id});
+        var removed = preGist.boards[bN].lists[lN].cards.splice(cN, 1)[0];
+        preGist.state.obj = preGist.boards[bN].lists[lN];
+        removed.fail = true;
+        preGist.boards[bN].lists[fN].cards.push(removed);
+      }
+    }
+
   }
 
   setGist(preGist);
@@ -150,6 +207,8 @@ var redrawPage = function(obj) {
     boardsPage();
   } else if (preGist.state.page === "list") {
     listsPage(obj);
+  } else {
+    cardsPage(obj);
   }
 }
 
@@ -173,7 +232,6 @@ var boardsPage = function() {
 }
 
 var listsPage = function(board) {
-  killPage();
   var filteredLists = _.filter(board.lists, function(e) {
     if (!preGist.state.ignore) return true;
     return !(preGist.blackList.lists.includes(e.id));
@@ -201,6 +259,14 @@ var listsPage = function(board) {
   });
 
   $('#total').html("TOTAL CARDS: " + total);
+}
+
+var cardsPage = function(list) {
+  var content = $("#content");
+  content.append($("<h2 class=\"button main\" id=\"lists\">BACK</div>"));
+  list.cards.forEach(function(c) {
+    content.append(createBlob(c));
+  });
 }
 
 var createBlob = function(blob) {
@@ -294,6 +360,13 @@ var styleBlob = function(blob, obj) {
       + "\nRANDOM CARD: " + raCard);
     ret["font-size"] = rScale(10, 45, minCards, maxCards, blob.cards.length)
       + "px";
+  } else {
+    var boardBack = _.find(preGist.boards, {id: blob.idBoard}).back
+    if (boardBack.match(/http|www|\/\//)) {
+      ret["background-image"] = "url(" + boardBack + ")";
+    } else {
+      ret["background-color"] = boardBack;
+    }
   }
 
   return obj.css(ret);;
