@@ -1,6 +1,21 @@
 var maxCards = 0;
 var minCards = 0;
 
+var preCacheBigAssets = function () {
+  var store = $('#store');
+  if (store.children().length > 0) return true;
+  preGist.boards.forEach(function(board){
+    var style = {};
+    var nothing = $("<div class=\"store\"></div>");
+    if (board.back.match(/http|www|\/\//)) {
+      style["background-image"] = "url(" + board.back + ")";
+    } else {
+      style["background-color"] = board.back;
+    }
+    store.append(nothing.css(style));
+  });
+}
+
 var rScale = function (minWanted, maxWanted, minVal, maxVal, val) {
   var bSizeDel = maxWanted - minWanted;
   var valDel = maxVal - minVal;
@@ -285,3 +300,4 @@ var styleBlob = function(blob, obj) {
 }
 
 redrawPage(preGist.state.obj);
+preCacheBigAssets();
