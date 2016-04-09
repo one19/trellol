@@ -44,7 +44,7 @@ h2 {
   margin: 0 0 0 auto;
 }
 
-div.board.done {
+div.board.done, div.board.fail, div.card.ignore, div.card.order {
   visibility: hidden;
   border: 0;
   padding: 0;

@@ -46,6 +46,7 @@ var getAll = function(board, last, boardData) {
       cards: simpleCards,
       ignore: preGistList.ignore,
       done: preGistList.done,
+      fail: preGistList.fail,
       order: preGistList.order
     });
     board.cards += cards.length;

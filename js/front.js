@@ -29,7 +29,7 @@ $("body").on("click", "h2.button", function(e) {
       setGist(preGist);
       redrawPage(preGist.state.obj);
       break;
-    default:
+    default: //travel to list view
       var board = _.find(preGist.boards, {id: e.currentTarget.id});
       if (board) {
         // window.history.pushState(board, board.name, '/' + board.id);
@@ -61,7 +61,7 @@ $("body").on("click", "div.checkbox", function(e) {
         preGist.boards[bN].ignore = false;
         _.pull(preGist.blackList.boards, targetID);
       }
-    } else if (classes.match(/done/gi)) {
+    } else if (classes.match(/done|fail/gi)) {
       console.log("Congrats; you're a retard.");
     } else if (classes.match(/order/gi)) {
       if (preGist.boards[bN].order) {
@@ -88,6 +88,12 @@ $("body").on("click", "div.checkbox", function(e) {
         preGist.boards[bN].lists[lN].done = false;
       } else {
         preGist.boards[bN].lists[lN].done = true;
+      }
+    } else if (classes.match(/fail/gi)) {
+      if (preGist.boards[bN].lists[lN].fail) {
+        preGist.boards[bN].lists[lN].fail = false;
+      } else {
+        preGist.boards[bN].lists[lN].fail = true;
       }
     } else if (classes.match(/order/gi)) {
       if (preGist.boards[bN].lists[lN].order) {
@@ -186,9 +192,11 @@ var createBlob = function(blob) {
   var ignoreChecked;
   var doneChecked;
   var orderChecked;
+  var failChecked;
   if (blob.ignore) ignoreChecked = " checked=\"true\"";
   if (blob.done) doneChecked = " checked=\"true\"";
   if (blob.order) orderChecked = " checked=\"true\"";
+  if (blob.fail) failChecked = " checked=\"true\"";
   var ret = $("<div class=\"" + blob.type + " button " + blob.id + "\">"
     + "<h2 class=\"main " + blob.type + " button\" id=\"" + blob.id + "\">"
     + blob.name + "</h2>"
@@ -203,6 +211,12 @@ var createBlob = function(blob) {
         + "Done:</p>"
         + "<input type=\"checkbox\" class=\"checkbox done " + blob.type + " "
         + blob.id + "\"" + doneChecked + "></input>"
+      + "</div>"
+      + "<div class=\"checkbox fail " + blob.type + " " + blob.id + "\">"
+        + "<p class=\"checkbox fail " + blob.type + " " + blob.id + "\">"
+        + "Fail:</p>"
+        + "<input type=\"checkbox\" class=\"checkbox fail " + blob.type + " "
+        + blob.id + "\"" + failChecked + "></input>"
       + "</div>"
       + "<div class=\"checkbox order " + blob.type + " " + blob.id + "\">"
         + "<p class=\"checkbox order " + blob.type + " " + blob.id + "\">"
