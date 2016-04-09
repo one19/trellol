@@ -82,7 +82,6 @@ var getBoards = function(allBoards) {
 
 var setGist = function(gest) {
   window.localStorage.setItem("gist", JSON.stringify(gest));
-  console.log("Gist set!")
 }
 
 Trello.authorize({

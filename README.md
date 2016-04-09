@@ -8,16 +8,16 @@ Place this api key into the api script link in `index.html` after `key=`
 
 ###TODO
 * Refactor `front.js` into a cleaner collection of js files
+* Add actions for moving cards about to api
+* Promiseify API get-all
 * Only allow one list per board to be the `Done` list
 * Decide on DB use, or just JSON file store
 * Store localhost information to JSON file/DB
 * Add burndown screen
 * Add weekly information screen
 * Add websockets for grabbing from Trello
-* Reduce `pregist.state.obj` weight to improve page load
-* Store large assets in hidden objects to improve page load
 * FUN THINGS WITH VISUALS
-* Stateful style
+* Fully stateful style
 
 ###TODO NEXT:
 * Package.json
