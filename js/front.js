@@ -120,13 +120,21 @@ $("body").on("click", "div.checkbox", function(e) {
         _.pull(preGist.blackList.lists, targetID);
       }
     } else if (classes.match(/done/gi)) {
-      if (preGist.boards[bN].lists[lN].done) {
+      var doneList = _.find(preGist.boards[bN].lists, {done: true});
+      if (doneList && (doneList.id !== preGist.boards[bN].lists[lN].id)) {
+        preGist.boards[bN].lists[lN].done = false;
+        $("#alert").text("Only one DONE list allowed.");
+      } else if (preGist.boards[bN].lists[lN].done) {
         preGist.boards[bN].lists[lN].done = false;
       } else {
         preGist.boards[bN].lists[lN].done = true;
       }
     } else if (classes.match(/fail/gi)) {
-      if (preGist.boards[bN].lists[lN].fail) {
+      var failList = _.find(preGist.boards[bN].lists, {fail: true});
+      if (failList && (failList.id !== preGist.boards[bN].lists[lN].id)) {
+        preGist.boards[bN].lists[lN].fail = false;
+        $("#alert").text("Only one FAILURE list allowed.");
+      } else if (preGist.boards[bN].lists[lN].fail) {
         preGist.boards[bN].lists[lN].fail = false;
       } else {
         preGist.boards[bN].lists[lN].fail = true;
