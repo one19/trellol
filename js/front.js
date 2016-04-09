@@ -10,7 +10,7 @@ var preCacheBigAssets = function () {
     if (board.back.match(/http|www|\/\//)) {
       style["background-image"] = "url(" + board.back + ")";
     } else {
-      style["background-color"] = board.back;
+      return true;
     }
     store.append(nothing.css(style));
   });
