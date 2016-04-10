@@ -49,7 +49,7 @@ var getAll = function(board, boardData) {
       fail: preGistList.fail,
       order: preGistList.order
     });
-    board.cards += cards.length;
+    if (!(preGistList.done || preGistList.fail)) board.cards += cards.length;
   });
   return board;
 }

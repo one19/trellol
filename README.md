@@ -8,14 +8,15 @@ Place this api key into the api script link in `index.html` after `key=`
 
 ###TODO
 * Refactor `front.js` into a cleaner collection of js files
-* Promiseify API get-all
+* Add-card API action
 * Decide on DB use, or just JSON file store
 * Store localhost information to JSON file/DB
 * Add burndown screen
 * Add weekly information screen
 * Add websockets for grabbing from Trello
-* FUN THINGS WITH VISUALS
+* MORE FUN THINGS WITH VISUALS
 * Fully stateful style
+* Random color style
 
 ###TODO NEXT:
 * Package.json
@@ -27,6 +28,7 @@ Place this api key into the api script link in `index.html` after `key=`
 * Import MD doc of headers/lists into board/list/cards
 
 ###BUGS
-* Fix the impromptu ugliness in the patch for empty boards and lists
+* Fix single-card list border styling
+* Refactor BoardPage/ListPage/CardPage filters
 
 [See it in action!](http://trellol.bitballoon.com)

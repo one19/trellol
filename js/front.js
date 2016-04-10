@@ -261,7 +261,7 @@ var listsPage = function(board) {
   latestDate = new Date(_.max(fCards)).valueOf();
   furthestDate = new Date(_.min(fCards)).valueOf();
   var total = _.reduce(board.lists, function(sum, n) {
-    if (n.done) return sum;
+    if (n.done || n.fail) return sum;
     if (preGist.blackList.lists.includes(n.id) && preGist.state.ignore) return sum;
     return sum + n.cards.length;
   }, 0);
