@@ -10,7 +10,7 @@ var error = function(errorMsg) {
   console.log("ERROR", errorMsg);
 };
 
-var getAll = function(board, last, boardData) {
+var getAll = function(board, boardData) {
   var preGistBoard = _.find(preGist.boards, {id: board.id});
   if (preGistBoard) {
     board.ignore = preGistBoard.ignore;
@@ -51,33 +51,43 @@ var getAll = function(board, last, boardData) {
     });
     board.cards += cards.length;
   });
-  gist.boards.push(board);
-  if (last) {
+  return board;
+}
+
+var getBoards = function(allBoards) {
+  var all = [];
+
+  allBoards.forEach(function(b, i) {
+    var p = new Promise(function(res, error) {
+      Trello.get("/boards/"+b.id+"?fields=all&cards=all&card_fields=all&card_attachments=true&lists=all&list_fields=all&members=all&member_fields=all&checklists=all&checklist_fields=all&organization=false", res, error);
+    });
+    all.push(p);
+  });
+
+  Promise.all(all).then(function(fullRet){
+    fullRet.forEach(function(board) {
+      var newBoard = {
+        name: board.name,
+        type: "board",
+        id: board.id,
+        back: board.prefs.backgroundImage || board.prefs.backgroundColor,
+        lists: [],
+        starred: board.starred,
+        cards: 0
+      }
+      gist.boards.push(getAll(newBoard, board));
+    });
+
     if (preGist.blackList) gist.blackList = preGist.blackList;
     if (preGist.state) gist.state = preGist.state;
     preGist = gist;
     gist = { boards: [] };
     setGist(preGist);
     console.log("Done storing!");
-  }
-  setTimeout(redrawPage(preGist.state.obj), 5000);
-}
-
-var getBoards = function(allBoards) {
-  allBoards.forEach(function(b, i) {
-    var board = {
-      name: b.name,
-      type: "board",
-      id: b.id,
-      back: b.prefs.backgroundImage || b.prefs.backgroundColor,
-      lists: [],
-      starred: b.starred,
-      cards: 0
-    }
-    var last = false;
-    if (i === allBoards.length - 1) last = true;
-    Trello.get("/boards/"+b.id+"?fields=all&cards=all&card_fields=all&card_attachments=true&lists=all&list_fields=all&members=all&member_fields=all&checklists=all&checklist_fields=all&organization=false", getAll.bind(this, board, last), error);
-  });
+    redrawPage(preGist.state.obj);
+  }, function(err) {
+    error(err);
+  })
 }
 
 var moveCardToList = function(cardId, listId) {
