@@ -1,5 +1,8 @@
 var maxCards = 0;
 var minCards = 0;
+var filterCards = [];
+var futhestDate;
+var latestDate;
 
 var preCacheBigAssets = function () {
   var store = $('#store');
@@ -22,6 +25,9 @@ var rScale = function (minWanted, maxWanted, minVal, maxVal, val) {
 
   return Math.round(((bSizeDel) * ((val - minVal)/valDel)) + minWanted);
 };
+var rgGoodBad = function(goodFrac) {
+  return tinycolor("rgb(168, 30, 48)").spin( 90 * goodFrac ).toString();
+}
 
 $("body").on("click", "h2.button", function(e) {
   switch (e.currentTarget.id) {
@@ -227,13 +233,15 @@ var boardsPage = function() {
   var content = $("#content");
   if (preGist.boards.length == 0) return error("No Boards; Click reload data!");
 
-  _.filter(preGist.boards, function(e) {
-    if (preGist.state.ignore) {
-      return !(preGist.blackList.boards.includes(e.id));
-    } else {
-      return true;
-    }
-  }).forEach(function(b) {
+  var filterBoards = _.filter(preGist.boards, function(e) {
+    if (!preGist.state.ignore) return true;
+    return !(preGist.blackList.boards.includes(e.id));
+  });
+  fCards = _.map(filterBoards, "lists").map( function(board) {return _.maxBy(_.flatMap(board, "cards"), "dateLastActivity" ).dateLastActivity});
+  furthestDate = new Date(_.min(fCards, "dateLastActivity")).valueOf();
+  latestDate = new Date(_.max(fCards, "dateLastActivity")).valueOf();
+
+  filterBoards.forEach(function(b) {
     total += b.cards;
     content.append(createBlob(b));
   });
@@ -249,12 +257,14 @@ var listsPage = function(board) {
   if (!preGist.state.ignore) {
     filteredLists = _.find(preGist.boards, {id: board.id}).lists;
   }
+  var fCards = _.map(_.flatMap(filteredLists, "cards"), 'dateLastActivity');
+  latestDate = new Date(_.max(fCards)).valueOf();
+  furthestDate = new Date(_.min(fCards)).valueOf();
   var total = _.reduce(board.lists, function(sum, n) {
     if (n.done) return sum;
     if (preGist.blackList.lists.includes(n.id) && preGist.state.ignore) return sum;
     return sum + n.cards.length;
   }, 0);
-  //LOOK AWAY LOOK AWAY, THERE ISN'T GLOBAL POLLUTION & MUTATION HAPPENING HERE!
   //fixes the odd case of all-hidden lists resulting in errors
   if (filteredLists.length === 0) {
     filteredLists[0] = {cards: [0, 0]};
@@ -273,6 +283,10 @@ var listsPage = function(board) {
 
 var cardsPage = function(list) {
   var content = $("#content");
+  var fCards = _.map(list.cards, "dateLastActivity");
+  latestDate = new Date(_.max(fCards)).valueOf();
+  furthestDate = new Date(_.min(fCards)).valueOf();
+
   content.append($("<h2 class=\"button main\" id=\"lists\">BACK</div>"));
   list.cards.forEach(function(c) {
     content.append(createBlob(c));
@@ -335,6 +349,9 @@ var styleBlob = function(blob, obj) {
     }
     var maxLists = _.maxBy(filteredBoards, 'lists').lists.length;
     var minLists = _.minBy(filteredBoards, 'lists').lists.length;
+    var lastDate = _.maxBy(_.flatMap(blob.lists, "cards"), "dateLastActivity");
+    var lastDNum = new Date(lastDate.dateLastActivity).valueOf();
+    var pcDate = (lastDNum - furthestDate)/(latestDate - furthestDate);
     var raCard = "";
     var sampled = {};
 
@@ -351,6 +368,13 @@ var styleBlob = function(blob, obj) {
 
   } else if (blob.type === "list") {
     var raCard = "";
+    var lastDate = _.maxBy(blob.cards, "dateLastActivity");
+    if (lastDate) {
+      var lastDNum = new Date(lastDate.dateLastActivity).valueOf();
+      var pcDate = (lastDNum - furthestDate)/(latestDate - furthestDate);
+    } else {
+      pcDate = 1;
+    }
 
     if (blob.order) {
       sampled = _.first(blob.cards);
@@ -366,8 +390,11 @@ var styleBlob = function(blob, obj) {
       + "px";
   } else if (blob.type === "card") {
     boardBack = _.find(preGist.boards, {id: blob.idBoard}).back;
+    var lastDNum = new Date(blob.dateLastActivity).valueOf();
+    var pcDate = (lastDNum - furthestDate)/(latestDate - furthestDate);
   }
   ret = styleBack(boardBack, ret);
+  ret["border"] = "4px solid " + rgGoodBad( Math.pow(pcDate, 7) );
 
   return obj.css(ret);;
 }
