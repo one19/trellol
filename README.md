@@ -14,7 +14,6 @@ Place this api key into the api script link in `index.html` after `key=`
 * Add burndown screen
 * Add weekly information screen
 * MORE FUN THINGS WITH VISUALS
-* Fully stateful style
 * Random color style
 
 ###TODO NEXT:

@@ -1,9 +1,3 @@
-var maxCards = 0;
-var minCards = 0;
-var filterCards = [];
-var futhestDate;
-var latestDate;
-
 var preCacheBigAssets = function () {
   var store = $('#store');
   if (store.children().length > 0) return true;
@@ -230,7 +224,6 @@ var redrawPage = function(obj) {
 
 var boardsPage = function() {
   var total = 0;
-  var content = $("#content");
   if (preGist.boards.length == 0) return error("No Boards; Click reload data!");
 
   var filterBoards = _.filter(preGist.boards, function(e) {
@@ -241,14 +234,14 @@ var boardsPage = function() {
     {return _.maxBy(_.flatMap(board, "cards"), "dateLastActivity" )
       .dateLastActivity
     });
-  furthestDate = new Date(_.min(fCards, "dateLastActivity")).valueOf();
-  latestDate = new Date(_.max(fCards, "dateLastActivity")).valueOf();
+  preGist.state.furthestDate = new Date(_.min(fCards, "dateLastActivity")).valueOf();
+  preGist.state.latestDate = new Date(_.max(fCards, "dateLastActivity")).valueOf();
 
+  var content = $("#content");
   filterBoards.forEach(function(b) {
     total += b.cards;
     content.append(createBlob(b));
   });
-
   $("#total").html("TOTAL CARDS: " + total);
 }
 
@@ -257,9 +250,7 @@ var listsPage = function(board) {
     if (!preGist.state.ignore) return true;
     return !(preGist.blackList.lists.includes(e.id));
   });
-  var fCards = _.map(_.flatMap(filteredLists, "cards"), 'dateLastActivity');
-  latestDate = new Date(_.max(fCards)).valueOf();
-  furthestDate = new Date(_.min(fCards)).valueOf();
+
   var total = _.reduce(board.lists, function(sum, n) {
     if (n.done || n.fail) return sum;
     if (preGist.blackList.lists.includes(n.id) && preGist.state.ignore) return sum;
@@ -267,23 +258,25 @@ var listsPage = function(board) {
   }, 0);
   //fixes the odd case of all-hidden lists resulting in errors
   if (filteredLists.length === 0) {filteredLists[0] = {cards: [0, 0]}};
-  maxCards = _.maxBy(filteredLists, "cards").cards.length;
-  minCards = _.minBy(filteredLists, "cards").cards.length;
+  var fCards = _.map(_.flatMap(filteredLists, "cards"), 'dateLastActivity');
+  preGist.state.latestDate = new Date(_.max(fCards)).valueOf();
+  preGist.state.furthestDate = new Date(_.min(fCards)).valueOf();
+  preGist.state.maxCards = _.maxBy(filteredLists, "cards").cards.length;
+  preGist.state.minCards = _.minBy(filteredLists, "cards").cards.length;
 
   var content = $("#content");
   content.append($("<h2 class=\"button main\" id=\"boards\">BACK</div>"));
   filteredLists.forEach(function(l) {
     content.append(createBlob(l));
   });
-
   $('#total').html("TOTAL CARDS: " + total);
 }
 
 var cardsPage = function(list) {
   var content = $("#content");
   var fCards = _.map(list.cards, "dateLastActivity");
-  latestDate = new Date(_.max(fCards)).valueOf();
-  furthestDate = new Date(_.min(fCards)).valueOf();
+  preGist.state.latestDate = new Date(_.max(fCards)).valueOf();
+  preGist.state.furthestDate = new Date(_.min(fCards)).valueOf();
 
   content.append($("<h2 class=\"button main\" id=\"lists\">BACK</div>"));
   list.cards.forEach(function(c) {
@@ -349,7 +342,7 @@ var styleBlob = function(blob, obj) {
     var minLists = _.minBy(filteredBoards, 'lists').lists.length;
     var lastDate = _.maxBy(_.flatMap(blob.lists, "cards"), "dateLastActivity");
     var lastDNum = new Date(lastDate.dateLastActivity).valueOf();
-    var pcDate = (lastDNum - furthestDate)/(latestDate - furthestDate);
+    var pcDate = (lastDNum - preGist.state.furthestDate)/(preGist.state.latestDate - preGist.state.furthestDate);
     var raCard = "";
     var sampled = {};
 
@@ -369,7 +362,7 @@ var styleBlob = function(blob, obj) {
     var lastDate = _.maxBy(blob.cards, "dateLastActivity");
     if (lastDate) {
       var lastDNum = new Date(lastDate.dateLastActivity).valueOf();
-      var pcDate = (lastDNum - furthestDate)/(latestDate - furthestDate);
+      var pcDate = (lastDNum - preGist.state.furthestDate)/(preGist.state.latestDate - preGist.state.furthestDate);
     } else {
       pcDate = 1;
     }
@@ -384,12 +377,12 @@ var styleBlob = function(blob, obj) {
 
     obj.attr("title", "CARDS: " + blob.cards.length
       + "\nRANDOM CARD: " + raCard);
-    ret["font-size"] = rScale(10, 45, minCards, maxCards, blob.cards.length)
+    ret["font-size"] = rScale(10, 45, preGist.state.minCards, preGist.state.maxCards, blob.cards.length)
       + "px";
   } else if (blob.type === "card") {
     boardBack = _.find(preGist.boards, {id: blob.idBoard}).back;
     var lastDNum = new Date(blob.dateLastActivity).valueOf();
-    var pcDate = (lastDNum - furthestDate)/(latestDate - furthestDate);
+    var pcDate = (lastDNum - preGist.state.furthestDate)/(preGist.state.latestDate - preGist.state.furthestDate);
   }
   ret = styleBack(boardBack, ret);
   ret["border"] = "4px solid " + rgGoodBad( Math.pow(pcDate, 7) );
