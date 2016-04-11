@@ -94,6 +94,17 @@ var moveCardToList = function(cardId, listId) {
   console.log('moving a card from one place to another')
   Trello.put("/cards/" + cardId + "/idList", {value: listId});
 }
+var createCard = function(listId, name, pos, due) {
+  var p = pos || "bottom";
+  var d = due || null;
+  var newCard = {
+    name: name,
+    pos: p,
+    due: due,
+    idList: listId
+  };
+  Trello.post('/cards/', newCard, success, error);
+}
 
 var setGist = function(gest) {
   window.localStorage.setItem("gist", JSON.stringify(gest));
