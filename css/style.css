@@ -89,6 +89,16 @@ input.checkbox {
   z-index: -1;
 }
 
+a.attachments {
+  cursor: pointer;
+  color: wheat;
+  display: inline-block;
+  text-shadow: 1px 1px 0 sandybrown;
+}
+.button:hover {
+  color: palegoldenrod;
+}
+
 #ignore, #noignore {
   float: right;
   clear: both;

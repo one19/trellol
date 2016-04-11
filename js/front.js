@@ -293,6 +293,11 @@ var createBlob = function(blob) {
   if (blob.done) doneChecked = " checked=\"true\"";
   if (blob.order) orderChecked = " checked=\"true\"";
   if (blob.fail) failChecked = " checked=\"true\"";
+  if (blob.attachments) {
+    var cardAtt = blob.attachments.map(function(att) {
+      return " <a href=" + att + " class=\"attachments\">Link</a>";
+    })
+  } else { var cardAtt = "";}
   var ret = $("<div class=\"" + blob.type + " button " + blob.id + "\">"
     + "<h2 class=\"main " + blob.type + " button\" id=\"" + blob.id + "\">"
     + blob.name + "</h2>"
@@ -320,6 +325,7 @@ var createBlob = function(blob) {
         + "<input type=\"checkbox\" class=\"checkbox order " + blob.type + " "
         + blob.id + "\"" + orderChecked + "></input>"
       + "</div>"
+      + cardAtt
     + "</div>");
   return styleBlob(blob, ret);
 }
