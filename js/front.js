@@ -237,7 +237,10 @@ var boardsPage = function() {
     if (!preGist.state.ignore) return true;
     return !(preGist.blackList.boards.includes(e.id));
   });
-  fCards = _.map(filterBoards, "lists").map( function(board) {return _.maxBy(_.flatMap(board, "cards"), "dateLastActivity" ).dateLastActivity});
+  var fCards = _.map(filterBoards, "lists").map( function(board)
+    {return _.maxBy(_.flatMap(board, "cards"), "dateLastActivity" )
+      .dateLastActivity
+    });
   furthestDate = new Date(_.min(fCards, "dateLastActivity")).valueOf();
   latestDate = new Date(_.max(fCards, "dateLastActivity")).valueOf();
 
@@ -254,9 +257,6 @@ var listsPage = function(board) {
     if (!preGist.state.ignore) return true;
     return !(preGist.blackList.lists.includes(e.id));
   });
-  if (!preGist.state.ignore) {
-    filteredLists = _.find(preGist.boards, {id: board.id}).lists;
-  }
   var fCards = _.map(_.flatMap(filteredLists, "cards"), 'dateLastActivity');
   latestDate = new Date(_.max(fCards)).valueOf();
   furthestDate = new Date(_.min(fCards)).valueOf();
@@ -266,9 +266,7 @@ var listsPage = function(board) {
     return sum + n.cards.length;
   }, 0);
   //fixes the odd case of all-hidden lists resulting in errors
-  if (filteredLists.length === 0) {
-    filteredLists[0] = {cards: [0, 0]};
-  }
+  if (filteredLists.length === 0) {filteredLists[0] = {cards: [0, 0]}};
   maxCards = _.maxBy(filteredLists, "cards").cards.length;
   minCards = _.minBy(filteredLists, "cards").cards.length;
 

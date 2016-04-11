@@ -13,7 +13,6 @@ Place this api key into the api script link in `index.html` after `key=`
 * Store localhost information to JSON file/DB
 * Add burndown screen
 * Add weekly information screen
-* Add websockets for grabbing from Trello
 * MORE FUN THINGS WITH VISUALS
 * Fully stateful style
 * Random color style
@@ -22,6 +21,7 @@ Place this api key into the api script link in `index.html` after `key=`
 * Package.json
 * Mirror gui commands to cli commands
 * Add command for launching configurator
+* Add webhooks for grabbing from Trello
 * Decide on electron use
 * Add card-movement commands to cli
 * Add CLI visuals
