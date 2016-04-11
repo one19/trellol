@@ -8,7 +8,6 @@ Place this api key into the api script link in `index.html` after `key=`
 
 ###TODO
 * Refactor `front.js` into a cleaner collection of js files
-* Add-card API action
 * Decide on DB use, or just JSON file store
 * Store localhost information to JSON file/DB
 * Add burndown screen
@@ -28,6 +27,5 @@ Place this api key into the api script link in `index.html` after `key=`
 
 ###BUGS
 * Fix single-card list border styling
-* Refactor BoardPage/ListPage/CardPage filters
 
 [See it in action!](http://trellol.bitballoon.com)
