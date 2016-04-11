@@ -59,7 +59,7 @@ h2 {
   margin: 0 0 0 auto;
 }
 
-div.board.done, div.board.fail, div.card.ignore, div.card.order, div.store {
+div.board.done, div.board.fail, div.card.ignore, div.card.order, div.store, p.order.card, input.order.card, p.ignore.card, input.ignore.card {
   visibility: hidden;
   border: 0;
   padding: 0;
@@ -95,4 +95,9 @@ input.checkbox {
 }
 #logo {
   padding-left: 8px;
+}
+#boards, #lists {
+  display: block;
+  margin: 0 auto;
+  text-align: center;
 }
