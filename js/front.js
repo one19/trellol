@@ -77,7 +77,6 @@ $("body").on("click", "h2.button", function(e) {
       break;
   }
 });
-
 $("body").on("click", "div.checkbox", function(e) {
   var c = $("input." + e.currentTarget.className.split(" ").join("."));
   (c.attr("checked"))? c.attr("checked", false): c.attr("checked", true);
@@ -184,12 +183,20 @@ $("body").on("click", "div.checkbox", function(e) {
         moveCardToList(targetID, failList.id);
       }
     }
-
   }
 
   setGist(preGist);
   redrawPage(preGist.state.obj);
-
+});
+$("body").on("click", "div.logo", function() {
+  if (interval !== 0) {
+    clearInterval(interval);
+    interval = 0
+  } else {
+    interval = setInterval(function() {
+      back = updateBackground(back);
+    }, 10);
+  }
 });
 
 var killIgnoreButton = function() {
