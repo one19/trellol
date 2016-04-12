@@ -26,6 +26,6 @@ Place this api key into the api script link in `index.html` after `key=`
 * Import MD doc of headers/lists into board/list/cards
 
 ###BUGS
-* Fix single-card list border styling
+* Being a worthless app
 
 [See it in action!](http://trellol.bitballoon.com)

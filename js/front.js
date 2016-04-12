@@ -347,8 +347,14 @@ var styleBlob = function(blob, obj) {
     var maxLists = _.maxBy(filteredBoards, 'lists').lists.length;
     var minLists = _.minBy(filteredBoards, 'lists').lists.length;
     var lastDate = _.maxBy(_.flatMap(blob.lists, "cards"), "dateLastActivity");
-    var lastDNum = new Date(lastDate.dateLastActivity).valueOf();
-    var pcDate = (lastDNum - preGist.state.furthestDate)/(preGist.state.latestDate - preGist.state.furthestDate);
+    if (lastDate) {
+      var lastDNum = new Date(lastDate.dateLastActivity).valueOf();
+      var denom = preGist.state.latestDate - preGist.state.furthestDate;
+      if (denom === 0) denom = 1;
+      var pcDate = (lastDNum - preGist.state.furthestDate) / denom;
+    } else {
+      pcDate = 1;
+    }
     var raCard = "";
     var sampled = {};
 
@@ -368,7 +374,9 @@ var styleBlob = function(blob, obj) {
     var lastDate = _.maxBy(blob.cards, "dateLastActivity");
     if (lastDate) {
       var lastDNum = new Date(lastDate.dateLastActivity).valueOf();
-      var pcDate = (lastDNum - preGist.state.furthestDate)/(preGist.state.latestDate - preGist.state.furthestDate);
+      var denom = preGist.state.latestDate - preGist.state.furthestDate;
+      if (denom === 0) denom = 1;
+      var pcDate = (lastDNum - preGist.state.furthestDate) / denom;
     } else {
       pcDate = 1;
     }
@@ -388,7 +396,9 @@ var styleBlob = function(blob, obj) {
   } else if (blob.type === "card") {
     boardBack = _.find(preGist.boards, {id: blob.idBoard}).back;
     var lastDNum = new Date(blob.dateLastActivity).valueOf();
-    var pcDate = (lastDNum - preGist.state.furthestDate)/(preGist.state.latestDate - preGist.state.furthestDate);
+    var denom = preGist.state.latestDate - preGist.state.furthestDate;
+    if (denom === 0) denom = 1;
+    var pcDate = (lastDNum - preGist.state.furthestDate) / denom;
   }
   ret = styleBack(boardBack, ret);
   ret["border"] = "4px solid " + rgGoodBad( Math.pow(pcDate, 7) );
