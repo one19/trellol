@@ -282,6 +282,7 @@ var listsPage = function(board) {
 var cardsPage = function(list) {
   var content = $("#content");
   var fCards = _.map(list.cards, "dateLastActivity");
+  var total = list.cards.length;
   preGist.state.latestDate = new Date(_.max(fCards)).valueOf();
   preGist.state.furthestDate = new Date(_.min(fCards)).valueOf();
 
@@ -289,6 +290,7 @@ var cardsPage = function(list) {
   list.cards.forEach(function(c) {
     content.append(createBlob(c));
   });
+  $('#total').html("TOTAL CARDS: " + total);
 }
 
 var createBlob = function(blob) {

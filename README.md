@@ -13,7 +13,6 @@ Place this api key into the api script link in `index.html` after `key=`
 * Add burndown screen
 * Add weekly information screen
 * MORE FUN THINGS WITH VISUALS
-* Random color style
 
 ###TODO NEXT:
 * Package.json
