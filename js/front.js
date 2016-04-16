@@ -26,7 +26,11 @@ var rgGoodBad = function(goodFrac) {
 $("body").on("click", "h2.button", function(e) {
   switch (e.currentTarget.id) {
     case "getGist":
-      Trello.get('/member/me/boards', getBoards, error);
+      var topButton = $("#getGist");
+      topButton.removeClass("button").text("Loading...");
+      Trello.get('/member/me/boards', getBoards, error).then(function() {
+        topButton.addClass("button").text("RELOAD DATA");
+      });
       break;
     case "boards":
       // window.history.pushState({}, "Home", '/');

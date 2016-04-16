@@ -18,7 +18,7 @@ h2 {
   font-weight: 400;
 }
 
-.button {
+.button, .clicked{
   cursor: pointer;
   color: wheat;
   display: inline-block;

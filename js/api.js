@@ -21,9 +21,10 @@ var getAll = function(board, boardData) {
   boardData.lists.forEach(function(l) {
     var name = (l.name.slice(-4) === "[!E]")? l.name.slice(0, -4): l.name;
     var cards = _.filter(boardData.cards, {idList: l.id});
-    var preGistList = {};
+    var preGistList = {done: false, ignore: false, fail: false, order: false};
     if (preGistBoard) {
-      preGistList = _.find(preGistBoard.lists, {id: l.id});
+      var found = _.find(preGistBoard.lists, {id: l.id});
+      if (found) preGistList = found;
     }
     var simpleCards = cards.map( function (e) {
       var attachments = e.attachments.map( function (i) {return i.name} );
