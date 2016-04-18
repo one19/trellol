@@ -26,11 +26,8 @@ var rgGoodBad = function(goodFrac) {
 $("body").on("click", "h2.button", function(e) {
   switch (e.currentTarget.id) {
     case "getGist":
-      var topButton = $("#getGist");
-      topButton.removeClass("button").text("Loading...");
-      Trello.get('/member/me/boards', getBoards, error).then(function() {
-        topButton.addClass("button").text("RELOAD DATA");
-      });
+      $("#getGist").removeClass("button").text("Loading...");
+      Trello.get('/member/me/boards', getBoards, error);
       break;
     case "boards":
       // window.history.pushState({}, "Home", '/');
@@ -309,7 +306,7 @@ var createBlob = function(blob) {
   if (blob.attachments) {
     var cardAtt = blob.attachments.map(function(att) {
       return " <a href=" + att + " class=\"attachments\">Link</a>";
-    })
+    });
   } else { var cardAtt = "";}
   var ret = $("<div class=\"" + blob.type + " button " + blob.id + "\">"
     + "<h2 class=\"main " + blob.type + " button\" id=\"" + blob.id + "\">"

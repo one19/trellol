@@ -4,7 +4,6 @@ var preGist = JSON.parse(window.localStorage.getItem("gist")) || { boards: [{lis
 var success = function(successMsg) {
   console.log(successMsg);
 };
-
 var error = function(errorMsg) {
   $('#alert').html(errorMsg);
   console.log("ERROR", errorMsg);
@@ -81,14 +80,21 @@ var getBoards = function(allBoards) {
 
     if (preGist.blackList) gist.blackList = preGist.blackList;
     if (preGist.state) gist.state = preGist.state;
+    if (preGist.state.obj.type === "board") {
+      preGist.state.obj = _.find(gist.boards, {id: preGist.state.obj.id});
+    } else if (preGist.state.obj.type === "list") {
+      preGist.state.obj = _.find(_.find(gist.boards,
+        {id: preGist.state.obj.idBoard}).lists, {id: preGist.state.obj.id});
+    }
     preGist = gist;
     gist = { boards: [] };
     setGist(preGist);
     console.log("Done storing!");
     redrawPage(preGist.state.obj);
+    $("#getGist").addClass("button").text("RELOAD DATA");
   }, function(err) {
     error(err);
-  })
+  });
 }
 
 var moveCardToList = function(cardId, listId) {

@@ -37,15 +37,12 @@ var setBack = function(state) {
   var $back = $(".background");
   $back.css({height: window.innerHeight + "px",
     width: window.innerWidth + "px"});
-  $back.css("background-image", "-webkit-gradient(linear, 50% 0%, 50% 100%, "
-      + "color-stop(0%, #" + state.color1.value.toHex() + "), "
-      + "color-stop(100%, #" + state.color2.value.toHex() + "))");
   var leads = ["-webkit-linear-gradient",
     "-moz-linear-gradient",
     "-o-linear-gradient",
     "linear-gradient"];
   leads.forEach(function(lead) {
-    $back.css("background-image", lead + "(top, #"
+    $back.css("background-image", lead + "(" + state.angle + "deg, #"
       + state.color1.value.toHex() + " 0%, #"
       + state.color2.value.toHex() + " 100%)");
   });
@@ -75,12 +72,14 @@ var iterate = function(colorObj) {
     .spin(colorObj.mods.spin.upDownStop)
     .darken(colorObj.mods.light.upDownStop * 0)
     .saturate(colorObj.mods.sat.upDownStop * 0)
-  return colorObj;
+  return colorObj; //darkness and saturation temporarily disabled
 }
 var updateBackground = function(state) {
   setBack(state);
   state.color1 = iterate(state.color1);
   state.color2 = iterate(state.color2);
+  back.angle = state.angle + 1;
+  if (back.angle > 360) back.angle = back.angle - 360;
   return state;
 }
 
