@@ -1,5 +1,12 @@
+var emptyState = { boards: 
+  [{lists: [{cards: []}]}],
+  blackList: {boards: [],
+    lists: []},
+  state: {page: "board"}
+};
+
 var gist = { boards: [], blackList: {boards: [], lists: []}, state: {} };
-var preGist = JSON.parse(window.localStorage.getItem("gist")) || { boards: [{lists: [{cards: []}]}], blackList: {boards: [], lists: []}, state: {page: "board"} };
+var preGist = JSON.parse(window.localStorage.getItem("gist")) || emptyState;
 
 var success = function(successMsg) {
   console.log(successMsg);
@@ -80,9 +87,9 @@ var getBoards = function(allBoards) {
 
     if (preGist.blackList) gist.blackList = preGist.blackList;
     if (preGist.state) gist.state = preGist.state;
-    if (preGist.state.obj.type === "board") {
+    if (preGist.state.obj && preGist.state.obj.type === "board") {
       preGist.state.obj = _.find(gist.boards, {id: preGist.state.obj.id});
-    } else if (preGist.state.obj.type === "list") {
+    } else if (preGist.state.obj && preGist.state.obj.type === "list") {
       preGist.state.obj = _.find(_.find(gist.boards,
         {id: preGist.state.obj.idBoard}).lists, {id: preGist.state.obj.id});
     }

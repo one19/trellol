@@ -232,7 +232,7 @@ var redrawPage = function(obj) {
 
 var boardsPage = function() {
   var total = 0;
-  if (preGist.boards.length == 0) return error("No Boards; Click reload data!");
+  if (_.isEqual(preGist === emptyState)) return error("No Boards; Click reload data!");
 
   var filterBoards = _.filter(preGist.boards, function(e) {
     if (!preGist.state.ignore) return true;
@@ -426,4 +426,4 @@ var styleBack = function(obj, ret) {
 }
 
 redrawPage(preGist.state.obj);
-preCacheBigAssets();
+if (!_.isEqual(preGist, emptyState)) preCacheBigAssets();
