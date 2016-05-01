@@ -21,7 +21,6 @@ var getAll = function(board, boardData) {
   if (preGistBoard) {
     board.ignore = preGistBoard.ignore;
     board.order = preGistBoard.order;
-    board.cards = boardData.cards.length;
   }
   board.cards = 0;
   boardData.lists.forEach(function(l) {
@@ -32,8 +31,12 @@ var getAll = function(board, boardData) {
       var found = _.find(preGistBoard.lists, {id: l.id});
       if (found) preGistList = found;
     }
+    var pglCards = _.find(_.flatMap(preGist.boards, "lists"), {id: l.id}).cards;
+    var newCards;
     var simpleCards = cards.map( function (e) {
       var attachments = e.attachments.map( function (i) {return i.name} );
+      if (!_.find(pglCards, {id: e.id}) && !newCards) newCards = [];
+      if (!_.find(pglCards, {id: e.id})) newCards.push(e.id);
       return {
         id: e.id,
         attachments: attachments,
@@ -54,7 +57,8 @@ var getAll = function(board, boardData) {
       ignore: preGistList.ignore,
       done: preGistList.done,
       fail: preGistList.fail,
-      order: preGistList.order
+      order: preGistList.order,
+      addedCards: newCards
     });
     if (!(preGistList.done || preGistList.fail)) board.cards += cards.length;
   });
@@ -105,7 +109,7 @@ var getBoards = function(allBoards) {
 }
 
 var moveCardToList = function(cardId, listId) {
-  console.log('moving a card from one place to another')
+  console.log('moving a card from one place to another');
   Trello.put("/cards/" + cardId + "/idList", {value: listId});
 }
 var createCard = function(listId, name, pos, due) {

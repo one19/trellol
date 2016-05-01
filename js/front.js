@@ -165,6 +165,8 @@ $("body").on("click", "div.checkbox", function(e) {
         preGist.state.obj = preGist.boards[bN].lists[lN];
         removed.done = true;
         preGist.boards[bN].lists[dN].cards.push(removed);
+        if (!preGist.boards[bN].lists[lN].doneCards) preGist.boards[bN].lists[lN].doneCards = [];
+        preGist.boards[bN].lists[lN].doneCards.push(targetID);
         moveCardToList(targetID, doneList.id);
       }
     } else if (classes.match(/ignore|order/gi)) {
@@ -181,6 +183,8 @@ $("body").on("click", "div.checkbox", function(e) {
         preGist.state.obj = preGist.boards[bN].lists[lN];
         removed.fail = true;
         preGist.boards[bN].lists[fN].cards.push(removed);
+        if (!preGist.boards[bN].lists[lN].doneCards) preGist.boards[bN].lists[lN].doneCards = [];
+        preGist.boards[bN].lists[lN].doneCards.push(targetID);
         moveCardToList(targetID, failList.id);
       }
     }
