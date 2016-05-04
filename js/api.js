@@ -31,7 +31,9 @@ var getAll = function(board, boardData) {
       var found = _.find(preGistBoard.lists, {id: l.id});
       if (found) preGistList = found;
     }
-    var pglCards = _.find(_.flatMap(preGist.boards, "lists"), {id: l.id}).cards;
+    var pgl = _.find(_.flatMap(preGist.boards, "lists"), {id: l.id});
+    var pglCards;
+    (pgl)? pglCards = pgl.cards: pglCards = [];
     var newCards;
     var simpleCards = cards.map( function (e) {
       var attachments = e.attachments.map( function (i) {return i.name} );
