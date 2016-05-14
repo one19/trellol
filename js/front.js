@@ -1,396 +1,300 @@
-var preCacheBigAssets = function () {
-  var store = $('#store');
+/*  global $ _ tinycolor Trello */
+/*  global moveCardToList setGist updateBackground getBoards error */
+/*  global emptyState back */
+
+const preCacheBigAssets = (preGist) => {
+  const store = $('#store');
   if (store.children().length > 0) return true;
-  preGist.boards.forEach(function(board){
-    var style = {};
-    var nothing = $("<div class=\"store\"></div>");
+  preGist.boards.forEach((board) => {
+    const style = {};
+    const nothing = $('<div class="store"></div>');
     if (board.back.match(/http|www|\/\//)) {
-      style["background-image"] = "url(" + board.back + ")";
+      style['background-image'] = `url(${board.back})`;
     } else {
-      return true;
+      style['background-color'] = 'black';
     }
     store.append(nothing.css(style));
   });
-}
-
-var rScale = function (minWanted, maxWanted, minVal, maxVal, val) {
-  var bSizeDel = maxWanted - minWanted;
-  var valDel = maxVal - minVal;
-
-  return Math.round(((bSizeDel) * ((val - minVal)/valDel)) + minWanted);
+  return store;
 };
-var rgGoodBad = function(goodFrac) {
-  return tinycolor("rgb(168, 30, 48)").spin( 90 * goodFrac ).toString();
-}
 
-$("body").on("click", "h2.button", function(e) {
+const rScale = (minWanted, maxWanted, minVal, maxVal, val) => {
+  const bSizeDel = maxWanted - minWanted;
+  const valDel = maxVal - minVal;
+
+  return Math.round(((bSizeDel) * ((val - minVal) / valDel)) + minWanted);
+};
+const rgGoodBad = (goodFrac) => {
+  const spunColor = tinycolor('rgb(168, 30, 48)').spin(90 * goodFrac).toString();
+  return spunColor;
+};
+const styleBack = (obj, ret) => {
+  const backRet = ret;
+  if (obj.match(/http|www|\/\//)) {
+    backRet['background-image'] = `url(${obj})`;
+  } else {
+    backRet['background-color'] = obj;
+  }
+  return backRet;
+};
+const killIgnoreButton = () => {
+  $('#ignore').remove();
+  $('#noignore').remove();
+};
+const killPage = () => {
+  $('#content').children().remove();
+};
+const redrawPage = (obj, preGist) => {
+  killPage();
+  killIgnoreButton();
+  const button = $('<h2></h2>').addClass('button main');
+
+  //  show/hide ignored button
+  if (preGist.state.ignore) {
+    button.attr('id', 'ignore').text('SHOW IGNORED');
+  } else {
+    button.attr('id', 'noignore').text('HIDE IGNORED');
+  }
+  $('.topBar').append(button);
+
+  if (preGist.state.page === 'board') {
+    boardsPage(preGist);
+  } else if (preGist.state.page === 'list') {
+    listsPage(obj, preGist);
+  } else {
+    cardsPage(obj, preGist);
+  }
+};
+
+$('body').on('click', 'h2.button', (e) => {
+  const newGist = window.preGist;
   switch (e.currentTarget.id) {
-    case "getGist":
-      $("#getGist").removeClass("button").text("Loading...");
+    case 'getGist':
+      $('#getGist').removeClass('button').text('Loading...');
       Trello.get('/member/me/boards', getBoards, error);
       break;
-    case "boards":
-      // window.history.pushState({}, "Home", '/');
-      $(".alert").text("");
-      preGist.state.page = "board";
-      setGist(preGist);
-      redrawPage(null);
+    case 'boards':
+      //  window.history.pushState({}, 'Home', '/');
+      $('.alert').text('');
+      newGist.state.page = 'board';
+      setGist(newGist);
+      redrawPage(null, newGist);
       break;
-    case "lists":
-      $(".alert").text("");
-      var boardId = preGist.state.obj.idBoard;
-      // window.history.pushState({}, "Home", '/' + idBoard);
-      preGist.state.page = "list";
-      preGist.state.obj = _.find(preGist.boards, {id: boardId});
-      setGist(preGist);
-      redrawPage(preGist.state.obj);
+    case 'lists':
+      $('.alert').text('');
+      const boardId = newGist.state.obj.idBoard;
+      //  window.history.pushState({}, "Home", '/' + idBoard);
+      newGist.state.page = 'list';
+      newGist.state.obj = _.find(newGist.boards, { id: boardId });
+      setGist(newGist);
+      redrawPage(newGist.state.obj, newGist);
       break;
-    case "ignore":
-      preGist.state.ignore = false;
-      setGist(preGist);
-      redrawPage(preGist.state.obj);
+    case 'ignore':
+      newGist.state.ignore = false;
+      setGist(newGist);
+      redrawPage(newGist.state.obj, newGist);
       break;
-    case "noignore":
-      preGist.state.ignore = true;
-      setGist(preGist);
-      redrawPage(preGist.state.obj);
+    case 'noignore':
+      newGist.state.ignore = true;
+      setGist(newGist);
+      redrawPage(newGist.state.obj, newGist);
       break;
-    default: //travel between views
-      if (preGist.state.page === "board") {
-        var board = _.find(preGist.boards, {id: e.currentTarget.id})
-        // window.history.pushState(board, board.name, '/' + board.id);
-        preGist.state.obj = board;
-        preGist.state.page = "list";
-        setGist(preGist);
-        redrawPage(preGist.state.obj);
-      } else if (preGist.state.page === "list") {
-        var list = _.find(preGist.state.obj.lists, {id: e.currentTarget.id});
-        // window.history.pushState(board, board.name, '/' + list.idBoard + '/' + list.id);
-        preGist.state.obj = list;
-        preGist.state.page = "card";
-        setGist(preGist);
-        redrawPage(preGist.state.obj);
-      } else if (preGist.state.page === "card") {
-        var card = _.find(preGist.state.obj.cards, {id: e.currentTarget.id});
-        var win = window.open(card.shortUrl, '_blank');
+    default: // travel between views
+      if (newGist.state.page === 'board') {
+        const board = _.find(newGist.boards, { id: e.currentTarget.id });
+        //  window.history.pushState(board, board.name, '/' + board.id);
+        newGist.state.obj = board;
+        newGist.state.page = 'list';
+        setGist(newGist);
+        redrawPage(newGist.state.obj, newGist);
+      } else if (newGist.state.page === 'list') {
+        const list = _.find(newGist.state.obj.lists, { id: e.currentTarget.id });
+        //  window.history.pushState(board, board.name, '/' + list.idBoard + '/' + list.id);
+        newGist.state.obj = list;
+        newGist.state.page = 'card';
+        setGist(newGist);
+        redrawPage(newGist.state.obj, newGist);
+      } else if (newGist.state.page === 'card') {
+        const card = _.find(newGist.state.obj.cards, { id: e.currentTarget.id });
+        const win = window.open(card.shortUrl, '_blank');
         win.focus();
       }
       break;
   }
 });
-$("body").on("click", "div.checkbox", function(e) {
-  var c = $("input." + e.currentTarget.className.split(" ").join("."));
-  (c.attr("checked"))? c.attr("checked", false): c.attr("checked", true);
+$('body').on('click', 'div.checkbox', (e) => {
+  const newGist = window.preGist;
+  const c = $(`input.${e.currentTarget.className.split(' ').join('.')}`);
+  (c.attr('checked'))? c.attr('checked', false): c.attr('checked', true);
 
-  if (!preGist.blackList) preGist.blackList = {boards: [], lists: []};
-  var classes = e.currentTarget.className;
-  var targetID = _.last(classes.split(" "));
+  if (!newGist.blackList) newGist.blackList = { boards: [], lists: [] };
+  const classes = e.currentTarget.className;
+  const targetID = _.last(classes.split(' '));
 
   if (classes.match(/board/gi)) {
-    var bN = _.findIndex(preGist.boards, {id: targetID});
+    const bN = _.findIndex(newGist.boards, { id: targetID });
 
     if (classes.match(/ignore/gi)) {
-      if (!(preGist.blackList.boards.includes(targetID))) {
-        preGist.boards[bN].ignore = true;
-        preGist.blackList.boards.push(targetID);
+      if (!(newGist.blackList.boards.includes(targetID))) {
+        newGist.boards[bN].ignore = true;
+        newGist.blackList.boards.push(targetID);
       } else {
-        preGist.boards[bN].ignore = false;
-        _.pull(preGist.blackList.boards, targetID);
+        newGist.boards[bN].ignore = false;
+        _.pull(newGist.blackList.boards, targetID);
       }
     } else if (classes.match(/done|fail/gi)) {
-      console.log("Congrats; you're a retard.");
+      console.log('Congrats; you\'re a retard.');
     } else if (classes.match(/order/gi)) {
-      if (preGist.boards[bN].order) {
-        preGist.boards[bN].order = false;
+      if (newGist.boards[bN].order) {
+        newGist.boards[bN].order = false;
       } else {
-        preGist.boards[bN].order = true;
+        newGist.boards[bN].order = true;
       }
     }
-
   } else if (classes.match(/list/gi)) {
-    var bN = _.findIndex(preGist.boards, {id: preGist.state.obj.id});
-    var lN = _.findIndex(preGist.boards[bN].lists, {id: targetID});
+    const bN = _.findIndex(newGist.boards, { id: newGist.state.obj.id });
+    const lN = _.findIndex(newGist.boards[bN].lists, { id: targetID });
 
     if (classes.match(/ignore/gi)) {
-      if (!(preGist.blackList.lists.includes(targetID))) {
-        preGist.boards[bN].lists[lN].ignore = true;
-        preGist.blackList.lists.push(targetID);
+      if (!(newGist.blackList.lists.includes(targetID))) {
+        newGist.boards[bN].lists[lN].ignore = true;
+        newGist.blackList.lists.push(targetID);
       } else {
-        preGist.boards[bN].lists[lN].ignore = false;
-        _.pull(preGist.blackList.lists, targetID);
+        newGist.boards[bN].lists[lN].ignore = false;
+        _.pull(newGist.blackList.lists, targetID);
       }
     } else if (classes.match(/done/gi)) {
-      var doneList = _.find(preGist.boards[bN].lists, {done: true});
-      if (doneList && (doneList.id !== preGist.boards[bN].lists[lN].id)) {
-        preGist.boards[bN].lists[lN].done = false;
-        $("#alert").text("Only one DONE list allowed.");
-      } else if (preGist.boards[bN].lists[lN].done) {
-        preGist.boards[bN].lists[lN].done = false;
+      const doneList = _.find(newGist.boards[bN].lists, { done: true });
+      if (doneList && (doneList.id !== newGist.boards[bN].lists[lN].id)) {
+        newGist.boards[bN].lists[lN].done = false;
+        $('#alert').text('Only one DONE list allowed.');
+      } else if (newGist.boards[bN].lists[lN].done) {
+        newGist.boards[bN].lists[lN].done = false;
       } else {
-        preGist.boards[bN].lists[lN].done = true;
+        newGist.boards[bN].lists[lN].done = true;
       }
     } else if (classes.match(/fail/gi)) {
-      var failList = _.find(preGist.boards[bN].lists, {fail: true});
-      if (failList && (failList.id !== preGist.boards[bN].lists[lN].id)) {
-        preGist.boards[bN].lists[lN].fail = false;
-        $("#alert").text("Only one FAILURE list allowed.");
-      } else if (preGist.boards[bN].lists[lN].fail) {
-        preGist.boards[bN].lists[lN].fail = false;
+      const failList = _.find(newGist.boards[bN].lists, { fail: true });
+      if (failList && (failList.id !== newGist.boards[bN].lists[lN].id)) {
+        newGist.boards[bN].lists[lN].fail = false;
+        $('#alert').text('Only one FAILURE list allowed.');
+      } else if (newGist.boards[bN].lists[lN].fail) {
+        newGist.boards[bN].lists[lN].fail = false;
       } else {
-        preGist.boards[bN].lists[lN].fail = true;
+        newGist.boards[bN].lists[lN].fail = true;
       }
     } else if (classes.match(/order/gi)) {
-      if (preGist.boards[bN].lists[lN].order) {
-        preGist.boards[bN].lists[lN].order = false;
+      if (newGist.boards[bN].lists[lN].order) {
+        newGist.boards[bN].lists[lN].order = false;
       } else {
-        preGist.boards[bN].lists[lN].order = true;
+        newGist.boards[bN].lists[lN].order = true;
       }
     }
-    preGist.state.obj = preGist.boards[bN];
-
+    newGist.state.obj = newGist.boards[bN];
   } else if (classes.match(/card/gi)) {
-    var bN = _.findIndex(preGist.boards, {id: preGist.state.obj.idBoard});
-    var lN = _.findIndex(preGist.boards[bN].lists, {id: preGist.state.obj.id});
-    var cN = _.findIndex(preGist.boards[bN].lists[lN].cards, {id: targetID});
+    const bN = _.findIndex(newGist.boards, { id: newGist.state.obj.idBoard });
+    const lN = _.findIndex(newGist.boards[bN].lists, { id: newGist.state.obj.id });
+    const cN = _.findIndex(newGist.boards[bN].lists[lN].cards, { id: targetID });
 
     if (classes.match(/done/gi)) {
-      var doneList = _.find(preGist.boards[bN].lists, {done: true});
+      const doneList = _.find(newGist.boards[bN].lists, { done: true });
       if (!doneList) {
-        return $(".alert").text("No designated DONE list.");
-      } else if (doneList.id === preGist.state.obj.id) {
-        return $(".alert").text("This task is already done.");
+        return $('.alert').text('No designated DONE list.');
+      } else if (doneList.id === newGist.state.obj.id) {
+        return $('.alert').text('This task is already done.');
       } else {
-        var dN = _.findIndex(preGist.boards[bN].lists, {id: doneList.id});
-        var removed = preGist.boards[bN].lists[lN].cards.splice(cN, 1)[0];
-        preGist.state.obj = preGist.boards[bN].lists[lN];
+        const dN = _.findIndex(newGist.boards[bN].lists, { id: doneList.id });
+        const removed = newGist.boards[bN].lists[lN].cards.splice(cN, 1)[0];
+        newGist.state.obj = newGist.boards[bN].lists[lN];
         removed.done = true;
-        preGist.boards[bN].lists[dN].cards.push(removed);
-        if (!preGist.boards[bN].lists[lN].doneCards) preGist.boards[bN].lists[lN].doneCards = [];
-        preGist.boards[bN].lists[lN].doneCards.push(targetID);
+        newGist.boards[bN].lists[dN].cards.push(removed);
+        if (!newGist.boards[bN].lists[lN].doneCards) newGist.boards[bN].lists[lN].doneCards = [];
+        newGist.boards[bN].lists[lN].doneCards.push(targetID);
         moveCardToList(targetID, doneList.id);
       }
     } else if (classes.match(/ignore|order/gi)) {
-      console.log("Congrats; you're a retard.");
+      console.log('Congrats; you\'re a retard.');
     } else if (classes.match(/fail/gi)) {
-      var failList = _.find(preGist.boards[bN].lists, {fail: true});
+      const failList = _.find(newGist.boards[bN].lists, { fail: true });
       if (!failList) {
-        return $(".alert").text("No designated FAILURE list.");
-      } else if (failList.id === preGist.state.obj.id) {
-        return $(".alert").text("You failed at this task already.");
+        return $('.alert').text('No designated FAILURE list.');
+      } else if (failList.id === newGist.state.obj.id) {
+        return $('.alert').text('You failed at this task already.');
       } else {
-        var fN = _.findIndex(preGist.boards[bN].lists, {id: failList.id});
-        var removed = preGist.boards[bN].lists[lN].cards.splice(cN, 1)[0];
-        preGist.state.obj = preGist.boards[bN].lists[lN];
+        const fN = _.findIndex(newGist.boards[bN].lists, { id: failList.id });
+        const removed = newGist.boards[bN].lists[lN].cards.splice(cN, 1)[0];
+        newGist.state.obj = newGist.boards[bN].lists[lN];
         removed.fail = true;
-        preGist.boards[bN].lists[fN].cards.push(removed);
-        if (!preGist.boards[bN].lists[lN].doneCards) preGist.boards[bN].lists[lN].doneCards = [];
-        preGist.boards[bN].lists[lN].doneCards.push(targetID);
+        newGist.boards[bN].lists[fN].cards.push(removed);
+        if (!newGist.boards[bN].lists[lN].doneCards) newGist.boards[bN].lists[lN].doneCards = [];
+        newGist.boards[bN].lists[lN].doneCards.push(targetID);
         moveCardToList(targetID, failList.id);
       }
     }
   }
-
-  setGist(preGist);
-  redrawPage(preGist.state.obj);
+  setGist(newGist);
+  redrawPage(newGist.state.obj, newGist);
+  return e;
 });
-$("body").on("click", "div.logo", function() {
-  if (interval !== 0) {
+$('body').on('click', 'div.logo', (e) => {
+  if (window.interval !== 0) {
     clearInterval(interval);
-    interval = 0
+    interval = 0;
   } else {
     interval = setInterval(function() {
       back = updateBackground(back);
     }, 10);
   }
+  return e;
 });
 
-var killIgnoreButton = function() {
-  $("#ignore").remove();
-  $("#noignore").remove();
-}
-var killPage = function() {
-  $("#content").children().remove();
-}
-
-var redrawPage = function(obj) {
-  killPage();
-  killIgnoreButton();
-  var button = $("<h2></h2>").addClass("button main");
-
-  //show/hide ignored button
-  if (preGist.state.ignore) {
-    button.attr("id", "ignore").text("SHOW IGNORED");
-  } else {
-    button.attr("id", "noignore").text("HIDE IGNORED");
-  }
-  $(".topBar").append(button);
-
-  if (preGist.state.page === "board") {
-    boardsPage();
-  } else if (preGist.state.page === "list") {
-    listsPage(obj);
-  } else {
-    cardsPage(obj);
-  }
-}
-
-var boardsPage = function() {
-  var total = 0;
-  if (_.isEqual(preGist === emptyState)) return error("No Boards; Click reload data!");
-
-  var filterBoards = _.filter(preGist.boards, function(e) {
-    if (!preGist.state.ignore) return true;
-    return !(preGist.blackList.boards.includes(e.id));
-  });
-  var fCards = _.map(filterBoards, "lists").map( function(board)
-    {return _.maxBy(_.flatMap(board, "cards"), "dateLastActivity" )
-      .dateLastActivity
-    });
-  preGist.state.furthestDate = new Date(_.min(fCards, "dateLastActivity")).valueOf();
-  preGist.state.latestDate = new Date(_.max(fCards, "dateLastActivity")).valueOf();
-
-  var content = $("#content");
-  filterBoards.forEach(function(b) {
-    total += b.cards;
-    content.append(createBlob(b));
-  });
-  $("#total").html("TOTAL CARDS: " + total);
-}
-
-var listsPage = function(board) {
-  var filteredLists = _.filter(board.lists, function(e) {
-    if (!preGist.state.ignore) return true;
-    return !(preGist.blackList.lists.includes(e.id));
-  });
-
-  var total = _.reduce(board.lists, function(sum, n) {
-    if (n.done || n.fail) return sum;
-    if (preGist.blackList.lists.includes(n.id) && preGist.state.ignore) return sum;
-    return sum + n.cards.length;
-  }, 0);
-  //fixes the odd case of all-hidden lists resulting in errors
-  if (filteredLists.length === 0) {filteredLists[0] = {cards: [0, 0]}};
-  var fCards = _.map(_.flatMap(filteredLists, "cards"), 'dateLastActivity');
-  preGist.state.latestDate = new Date(_.max(fCards)).valueOf();
-  preGist.state.furthestDate = new Date(_.min(fCards)).valueOf();
-  preGist.state.maxCards = _.maxBy(filteredLists, "cards").cards.length;
-  preGist.state.minCards = _.minBy(filteredLists, "cards").cards.length;
-
-  var content = $("#content");
-  content.append($("<h2 class=\"button main\" id=\"boards\">BACK</div>"));
-  filteredLists.forEach(function(l) {
-    content.append(createBlob(l));
-  });
-  $('#total').html("TOTAL CARDS: " + total);
-}
-
-var cardsPage = function(list) {
-  var content = $("#content");
-  var fCards = _.map(list.cards, "dateLastActivity");
-  var total = list.cards.length;
-  preGist.state.latestDate = new Date(_.max(fCards)).valueOf();
-  preGist.state.furthestDate = new Date(_.min(fCards)).valueOf();
-
-  content.append($("<h2 class=\"button main\" id=\"lists\">BACK</div>"));
-  list.cards.forEach(function(c) {
-    content.append(createBlob(c));
-  });
-  $('#total').html("TOTAL CARDS: " + total);
-}
-
-var createBlob = function(blob) {
-  var ignoreChecked;
-  var doneChecked;
-  var orderChecked;
-  var failChecked;
-  if (blob.ignore) ignoreChecked = " checked=\"true\"";
-  if (blob.done) doneChecked = " checked=\"true\"";
-  if (blob.order) orderChecked = " checked=\"true\"";
-  if (blob.fail) failChecked = " checked=\"true\"";
-  if (blob.attachments) {
-    var cardAtt = blob.attachments.map(function(att) {
-      return " <a href=" + att + " class=\"attachments\">Link</a>";
-    });
-  } else { var cardAtt = "";}
-  var ret = $("<div class=\"" + blob.type + " button " + blob.id + "\">"
-    + "<h2 class=\"main " + blob.type + " button\" id=\"" + blob.id + "\">"
-    + blob.name + "</h2>"
-      + "<div class=\"checkbox ignore " + blob.type + " " + blob.id + "\">"
-        + "<p class=\"checkbox ignore " + blob.type + " " + blob.id + "\">"
-        + "Ignore:</p>"
-        + "<input type=\"checkbox\" class=\"checkbox ignore " + blob.type + " "
-        + blob.id + "\"" + ignoreChecked + "></input>"
-      + "</div>"
-      + "<div class=\"checkbox done " + blob.type + " " + blob.id + "\">"
-        + "<p class=\"checkbox done " + blob.type + " " + blob.id + "\">"
-        + "Done:</p>"
-        + "<input type=\"checkbox\" class=\"checkbox done " + blob.type + " "
-        + blob.id + "\"" + doneChecked + "></input>"
-      + "</div>"
-      + "<div class=\"checkbox fail " + blob.type + " " + blob.id + "\">"
-        + "<p class=\"checkbox fail " + blob.type + " " + blob.id + "\">"
-        + "Fail:</p>"
-        + "<input type=\"checkbox\" class=\"checkbox fail " + blob.type + " "
-        + blob.id + "\"" + failChecked + "></input>"
-      + "</div>"
-      + "<div class=\"checkbox order " + blob.type + " " + blob.id + "\">"
-        + "<p class=\"checkbox order " + blob.type + " " + blob.id + "\">"
-        + "Ordered:</p>"
-        + "<input type=\"checkbox\" class=\"checkbox order " + blob.type + " "
-        + blob.id + "\"" + orderChecked + "></input>"
-      + "</div>"
-      + cardAtt
-    + "</div>");
-  return styleBlob(blob, ret);
-}
-
-var styleBlob = function(blob, obj) {
-  var ret = {};
-  var boardBack;
+const styleBlob = (blob, obj, preGist) => {
+  let ret = {};
+  let boardBack;
+  let pcDate;
 
   if (!blob.type) {
     return console.log('Way to go dingus, you hid all of everything.');
-  } else if (blob.type === "board") {
-    var filteredBoards = _.filter(preGist.boards, function(e) {
+  } else if (blob.type === 'board') {
+    let filteredBoards = _.filter(preGist.boards, (e) => {
       return !(preGist.blackList.boards.includes(e.id));
     });
-    //fixes the odd case of all-hidden boards resulting in errors
+    //  fixes the odd case of all-hidden boards resulting in errors
     if ((filteredBoards.length === 0) && !preGist.state.ignore) {
       filteredBoards = preGist.boards;
     }
-    var maxLists = _.maxBy(filteredBoards, 'lists').lists.length;
-    var minLists = _.minBy(filteredBoards, 'lists').lists.length;
-    var lastDate = _.maxBy(_.flatMap(blob.lists, "cards"), "dateLastActivity");
+    const maxLists = _.maxBy(filteredBoards, 'lists').lists.length;
+    const minLists = _.minBy(filteredBoards, 'lists').lists.length;
+    const lastDate = _.maxBy(_.flatMap(blob.lists, 'cards'), 'dateLastActivity');
     if (lastDate) {
-      var lastDNum = new Date(lastDate.dateLastActivity).valueOf();
-      var denom = preGist.state.latestDate - preGist.state.furthestDate;
+      const lastDNum = new Date(lastDate.dateLastActivity).valueOf();
+      let denom = preGist.state.latestDate - preGist.state.furthestDate;
       if (denom === 0) denom = 1;
-      var pcDate = (lastDNum - preGist.state.furthestDate) / denom;
+      pcDate = (lastDNum - preGist.state.furthestDate) / denom;
     } else {
       pcDate = 1;
     }
-    var raCard = "";
-    var sampled = {};
+    let raCard = '';
+    let sampled = {};
 
     if (blob.order) {
       sampled = _.sample(_.first(blob.lists).cards);
     } else {
       sampled = _.sample(_.sample(blob.lists).cards);
     }
-    (!sampled)? raCard = "EMPTY LIST": raCard = sampled.name;
-    obj.attr("title", "CARDS: " + blob.cards + "\nRANDOM CARD: " + raCard);
+    (!sampled)? raCard = 'EMPTY LIST': raCard = sampled.name;
+    obj.attr('title', `CARDS: ${blob.cards} \nRANDOM CARD: ${raCard}`);
     boardBack = blob.back;
-    ret["font-size"] = rScale(10, 45, minLists, maxLists, blob.lists.length)
-      + "px";
-
-  } else if (blob.type === "list") {
-    var raCard = "";
-    var lastDate = _.maxBy(blob.cards, "dateLastActivity");
+    ret['font-size'] = `${rScale(10, 45, minLists, maxLists, blob.lists.length)}px`;
+  } else if (blob.type === 'list') {
+    let sampled;
+    let raCard = '';
+    const lastDate = _.maxBy(blob.cards, 'dateLastActivity');
     if (lastDate) {
-      var lastDNum = new Date(lastDate.dateLastActivity).valueOf();
-      var denom = preGist.state.latestDate - preGist.state.furthestDate;
+      const lastDNum = new Date(lastDate.dateLastActivity).valueOf();
+      let denom = preGist.state.latestDate - preGist.state.furthestDate;
       if (denom === 0) denom = 1;
-      var pcDate = (lastDNum - preGist.state.furthestDate) / denom;
+      pcDate = (lastDNum - preGist.state.furthestDate) / denom;
     } else {
       pcDate = 1;
     }
@@ -401,33 +305,137 @@ var styleBlob = function(blob, obj) {
       sampled = _.sample(blob.cards);
     }
     boardBack = preGist.state.obj.back;
-    (!sampled)? raCard = "EMPTY LIST": raCard = sampled.name;
+    (!sampled)? raCard = 'EMPTY LIST': raCard = sampled.name;
 
-    obj.attr("title", "CARDS: " + blob.cards.length
-      + "\nRANDOM CARD: " + raCard);
-    ret["font-size"] = rScale(10, 45, preGist.state.minCards, preGist.state.maxCards, blob.cards.length)
-      + "px";
-  } else if (blob.type === "card") {
-    boardBack = _.find(preGist.boards, {id: blob.idBoard}).back;
-    var lastDNum = new Date(blob.dateLastActivity).valueOf();
-    var denom = preGist.state.latestDate - preGist.state.furthestDate;
+    obj.attr('title', `CARDS: ${blob.cards.length}\nRANDOM CARD: ${raCard}`);
+    ret['font-size'] = `${rScale(10, 45,preGist.state.minCards, preGist.state.maxCards, blob.cards.length)}px`;
+  } else if (blob.type === 'card') {
+    boardBack = _.find(preGist.boards, { id: blob.idBoard }).back;
+    const lastDNum = new Date(blob.dateLastActivity).valueOf();
+    let denom = preGist.state.latestDate - preGist.state.furthestDate;
     if (denom === 0) denom = 1;
-    var pcDate = (lastDNum - preGist.state.furthestDate) / denom;
+    pcDate = (lastDNum - preGist.state.furthestDate) / denom;
   }
   ret = styleBack(boardBack, ret);
-  ret["border"] = "4px solid " + rgGoodBad( Math.pow(pcDate, 7) );
+  ret.border = `4px solid ${rgGoodBad(Math.pow(pcDate, 7))}`;
 
-  return obj.css(ret);;
-}
+  return obj.css(ret);
+};
 
-var styleBack = function(obj, ret) {
-  if (obj.match(/http|www|\/\//)) {
-    ret["background-image"] = "url(" + obj + ")";
-  } else {
-    ret["background-color"] = obj;
-  }
-  return ret;
-}
+const createBlob = (blob, preGist) => {
+  let ignoreChecked;
+  let doneChecked;
+  let orderChecked;
+  let failChecked;
+  if (blob.ignore) ignoreChecked = ' checked="true"';
+  if (blob.done) doneChecked = ' checked="true"';
+  if (blob.order) orderChecked = ' checked="true"';
+  if (blob.fail) failChecked = ' checked="true"';
+  let cardAtt;
+  if (blob.attachments) {
+    cardAtt = blob.attachments.map((att) => {
+      const thisLink = ` <a href=${att} class="attachments">Link</a>`;
+      return thisLink;
+    });
+  } else { cardAtt = ''; }
+  const ret = $(
+    `<div class="${blob.type} button ${blob.id}">\n
+      <h2 class="main ${blob.type} button" id="${blob.id}">${blob.name}</h2>\n
+      <div class="checkbox ignore ${blob.type} ${blob.id}">\n
+        <p class="checkbox ignore ${blob.type} ${blob.id}">Ignore: </p>\n
+        <input type="checkbox" class="checkbox ignore
+         ${blob.type} ${blob.id}" ${ignoreChecked}></input>\n
+      </div>\n
+      <div class="checkbox done ${blob.type} ${blob.id}">\n
+        <p class="checkbox done ${blob.type} ${blob.id}">Done: </p>\n
+        <input type="checkbox" class="checkbox done
+         ${blob.type} ${blob.id}" ${doneChecked}></input>\n
+      </div>\n
+      <div class="checkbox fail ${blob.type} ${blob.id}">\n
+        <p class="checkbox fail ${blob.type} ${blob.id}">Fail: </p>\n
+        <input type="checkbox" class="checkbox fail
+         ${blob.type} ${blob.id}" ${failChecked}></input>\n
+      </div>\n
+      <div class="checkbox order ${blob.type} ${blob.id}">\n
+        <p class="checkbox order ${blob.type} ${blob.id}">Ordered: </p>\n
+        <input type="checkbox" class="checkbox order
+         ${blob.type} ${blob.id}" ${orderChecked}></input>\n
+      </div>\n
+      ${cardAtt}\n
+    </div>`);
+  return styleBlob(blob, ret, preGist);
+};
 
-redrawPage(preGist.state.obj);
-if (!_.isEqual(preGist, emptyState)) preCacheBigAssets();
+const boardsPage = (preGist) => {
+  let total = 0;
+  const newGist = preGist;
+  if (_.isEqual(preGist === emptyState)) return error('No Boards; Click reload data!');
+
+  const filterBoards = _.filter(preGist.boards, (e) => {
+    if (!preGist.state.ignore) return true;
+    return !(preGist.blackList.boards.includes(e.id));
+  });
+  const fCards = _.map(filterBoards, 'lists').map((board) => {
+    const latestCard = _.maxBy(_.flatMap(board, 'cards'), 'dateLastActivity').dateLastActivity;
+    return latestCard;
+  });
+  newGist.state.furthestDate = new Date(_.min(fCards, 'dateLastActivity')).valueOf();
+  newGist.state.latestDate = new Date(_.max(fCards, 'dateLastActivity')).valueOf();
+
+  const content = $('#content');
+  filterBoards.forEach((b) => {
+    total += b.cards;
+    content.append(createBlob(b, preGist));
+  });
+  $('#total').html(`TOTAL CARDS: ${total}`);
+  window.preGist = newGist;
+  return 'boards';
+};
+const listsPage = (board, preGist) => {
+  const newGist = preGist;
+  const filteredLists = _.filter(board.lists, (e) => {
+    if (!preGist.state.ignore) return true;
+    return !(preGist.blackList.lists.includes(e.id));
+  });
+
+  const total = _.reduce(board.lists, (sum, n) => {
+    if (n.done || n.fail) return sum;
+    if (preGist.blackList.lists.includes(n.id) && preGist.state.ignore) return sum;
+    return sum + n.cards.length;
+  }, 0);
+  //  fixes the odd case of all-hidden lists resulting in errors
+  if (filteredLists.length === 0) { filteredLists[0] = { cards: [0, 0] }; }
+  const fCards = _.map(_.flatMap(filteredLists, 'cards'), 'dateLastActivity');
+  newGist.state.latestDate = new Date(_.max(fCards)).valueOf();
+  newGist.state.furthestDate = new Date(_.min(fCards)).valueOf();
+  newGist.state.maxCards = _.maxBy(filteredLists, 'cards').cards.length;
+  newGist.state.minCards = _.minBy(filteredLists, 'cards').cards.length;
+
+  const content = $('#content');
+  content.append($('<h2 class="button main" id="boards">BACK</div>'));
+  filteredLists.forEach((l) => {
+    content.append(createBlob(l, preGist));
+  });
+  $('#total').html(`TOTAL CARDS: ${total}`);
+  window.preGist = newGist;
+  return 'lists';
+};
+const cardsPage = (list, preGist) => {
+  const content = $('#content');
+  const fCards = _.map(list.cards, 'dateLastActivity');
+  const total = list.cards.length;
+  const newGist = preGist;
+  newGist.state.latestDate = new Date(_.max(fCards)).valueOf();
+  newGist.state.furthestDate = new Date(_.min(fCards)).valueOf();
+
+  content.append($('<h2 class="button main" id="lists">BACK</div>'));
+  list.cards.forEach((c) => {
+    content.append(createBlob(c, preGist));
+  });
+  $('#total').html(`TOTAL CARDS: ${total}`);
+  window.preGist = newGist;
+  return 'cards';
+};
+
+redrawPage(window.preGist.state.obj, window.preGist);
+if (!_.isEqual(window.preGist, emptyState)) preCacheBigAssets(window.preGist);

@@ -1,0 +1,5 @@
+{
+  "extends": "prismatik",
+  "rules": {
+  }
+}

@@ -1,17 +1,18 @@
-var back = {
+window.back = {
   angle: 0,
   fps: 30
-}
+};
+let back = window.back;
 
 var tF = function() {return Boolean(between(0,1));}
 var between = function(min, max) {
   return Math.floor((Math.random() * (max - min + 1)) + min);
-}
+};
 var colorConstructor = function() {
   return {
     value: tinycolor.random(),
     mods: {
-      spin:{
+      spin: {
         type: "spin",
         streak: between(Math.floor(back.fps/2), back.fps * 5),
         upDownStop: between(-1, 1)
@@ -27,8 +28,8 @@ var colorConstructor = function() {
         upDownStop: between(-1, 1)
       }
     }
-  }
-}
+  };
+};
 
 back.color1 = colorConstructor();
 back.color2 = colorConstructor();
