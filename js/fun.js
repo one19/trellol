@@ -1,89 +1,96 @@
+/*  global $ _ tinycolor Trello */
+
 window.back = {
   angle: 0,
   fps: 30
 };
 let back = window.back;
 
-var tF = function() {return Boolean(between(0,1));}
-var between = function(min, max) {
+const between = (min, max) => {
   return Math.floor((Math.random() * (max - min + 1)) + min);
 };
-var colorConstructor = function() {
-  return {
+const tF = () => {
+  const trueOrFalse = Boolean(between(0, 1));
+  return trueOrFalse;
+};
+const colorConstructor = () => {
+  const colorObject = {
     value: tinycolor.random(),
     mods: {
       spin: {
-        type: "spin",
-        streak: between(Math.floor(back.fps/2), back.fps * 5),
+        type: 'spin',
+        streak: between(Math.floor(back.fps / 2), back.fps * 5),
         upDownStop: between(-1, 1)
       },
       light: {
-        type: "light",
-        streak: between(Math.floor(back.fps/2), back.fps * 2),
+        type: 'light',
+        streak: between(Math.floor(back.fps / 2), back.fps * 2),
         upDownStop: between(-1, 1)
       },
       sat: {
-        type: "sat",
-        streak: between(Math.floor(back.fps/2), back.fps * 2),
+        type: 'sat',
+        streak: between(Math.floor(back.fps / 2), back.fps * 2),
         upDownStop: between(-1, 1)
       }
     }
   };
+  return colorObject;
 };
 
 back.color1 = colorConstructor();
 back.color2 = colorConstructor();
 
-var setBack = function(state) {
-  var $back = $(".background");
-  $back.css({height: window.innerHeight + "px",
-    width: window.innerWidth + "px"});
-  var leads = ["-webkit-linear-gradient",
-    "-moz-linear-gradient",
-    "-o-linear-gradient",
-    "linear-gradient"];
-  leads.forEach(function(lead) {
-    $back.css("background-image", lead + "(" + state.angle + "deg, #"
-      + state.color1.value.toHex() + " 0%, #"
-      + state.color2.value.toHex() + " 100%)");
+const setBack = (state) => {
+  const $back = $('.background');
+  $back.css({ height: `${window.innerHeight}px`,
+    width: `${window.innerWidth}px` });
+  const leads = ['-webkit-linear-gradient',
+    '-moz-linear-gradient',
+    '-o-linear-gradient',
+    'linear-gradient'];
+  leads.forEach((lead) => {
+    $back.css('background-image', `${lead}(${state.angle}deg, #${state.color1.value.toHex()}
+     0%, #${state.color2.value.toHex()} 100%)`);
   });
-}
-var objUpdate = function(obj) {
+};
+const objUpdate = (obj) => {
   if (obj.streak <= 0) {
-    var mult = 2;
-    if (obj.type = "spin") mult = 5;
+    let mult = 2;
+    if (obj.type === 'spin') { mult = 5; }
     return {
       type: obj.type,
-      streak: between(Math.floor(back.fps/2), back.fps * mult),
+      streak: between(Math.floor(back.fps / 2), back.fps * mult),
       upDownStop: between(-1, 1)
-    }
+    };
   } else {
     return {
       type: obj.type,
       streak: obj.streak - 1,
       upDownStop: obj.upDownStop
-    }
+    };
   }
-}
-var iterate = function(colorObj) {
-  Object.keys(colorObj.mods).forEach(function(mod) {
-    colorObj.mods[mod] = objUpdate(colorObj.mods[mod]);
+};
+const iterate = (colorObj) => {
+  const newColorObj = colorObj;
+  Object.keys(newColorObj.mods).forEach((mod) => {
+    newColorObj.mods[mod] = objUpdate(newColorObj.mods[mod]);
   });
-  colorObj.value = colorObj.value
-    .spin(colorObj.mods.spin.upDownStop)
-    .darken(colorObj.mods.light.upDownStop * 0)
-    .saturate(colorObj.mods.sat.upDownStop * 0)
-  return colorObj; //darkness and saturation temporarily disabled
-}
-var updateBackground = function(state) {
+  newColorObj.value = newColorObj.value
+    .spin(newColorObj.mods.spin.upDownStop)
+    .darken(newColorObj.mods.light.upDownStop * 0)
+    .saturate(newColorObj.mods.sat.upDownStop * 0);
+  return newColorObj; //  darkness and saturation temporarily disabled
+};
+const updateBackground = (state) => {
+  const nextState = state;
   setBack(state);
-  state.color1 = iterate(state.color1);
-  state.color2 = iterate(state.color2);
-  back.angle = state.angle + 1;
+  nextState.color1 = iterate(nextState.color1);
+  nextState.color2 = iterate(nextState.color2);
+  back.angle = nextState.angle + 1;
   if (back.angle > 360) back.angle = back.angle - 360;
-  return state;
-}
+  return nextState;
+};
 
-var interval = setInterval(function() {
+var interval = setInterval(() => {
   back = updateBackground(back);
 }, 10);

@@ -6,6 +6,10 @@ To use the app, grab your own api key from [trello.](https://developers.trello.c
 
 Place this api key into the api script link in `index.html` after `key=`
 
+###TO RUN:
+
+run `npm run run` and visit `localhost:3002` or assign your port with PORT=`number`
+
 ###TODO
 * Refactor `front.js` into a cleaner collection of js files
 * Decide on DB use, or just JSON file store
