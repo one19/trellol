@@ -18,13 +18,13 @@ const success = (successMsg) => {
 };
 const error = (errorMsg) => {
   $('#alert').html(errorMsg);
-  console.log('ERROR', errorMsg);
+  console.error('ERROR', errorMsg);
 };
-const moveCardToList = (cardId, listId) => {
+const moveCardToList = (cardId, listId) => { // eslint-disable-line
   console.log('moving a card from one place to another');
   Trello.put(`/cards/${cardId}/idList`, { value: listId });
 };
-const createCard = (listId, name, pos, due) => {
+const createCard = (listId, name, pos, due) => { // eslint-disable-line
   const p = pos || 'bottom';
   const d = due || null;
   const newCard = {
@@ -100,16 +100,16 @@ const getAll = (board, boardData) => {
   return newBoard;
 };
 
-const getBoards = (allBoards) => {
+const getBoards = (allBoards) => { // eslint-disable-line
   const all = [];
   allBoards.forEach((b) => {
     const p = new Promise((res, reject) => {
-      Trello.get(`/boards/${b.id}?fields=all&cards=all&card_fields=all&card_attachments=true&lists=all&list_fields=all&members=all&member_fields=all&checklists=all&checklist_fields=all&organization=false`, res, reject);
+      Trello.get(`/boards/${b.id}?fields=all&cards=all&card_fields=all&card_attachments=true&lists=all&list_fields=all&members=all&member_fields=all&checklists=all&checklist_fields=all&organization=false`, res, reject); // eslint-disable-line
     });
     all.push(p);
   });
 
-  Promise.all(all).then((fullRet) => {
+  return Promise.all(all).then((fullRet) => {
     fullRet.forEach((board) => {
       const newBoard = {
         name: board.name,

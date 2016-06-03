@@ -20,11 +20,11 @@ const getObjects = (timeStamps, justMax) => {
     $.post('/times', {
       dataType: 'json',
       data: JSON.stringify(timeStamps)
-    }.done((data) => {
+    }).done((data) => {
       console.log('data', data);
       window.graph = data;
       return resolve(data);
-    })).fail((error) => {
+    }).fail((error) => {
       console.log('jQuery post error!');
       return reject(error);
     });
@@ -34,7 +34,7 @@ const getObjects = (timeStamps, justMax) => {
 
 const generateDate = (preGist) => {
   const boardData = preGist.boards.map((board) => {
-    const listData = board.lists.map((list) => {
+    const listData = board.lists.map((list) => { // eslint-disable-line
       return {
         id: list.id,
         totalCards: list.cards.length,
@@ -46,7 +46,8 @@ const generateDate = (preGist) => {
       id: board.id,
       totalCards: _.flatMap(board.lists, 'cards').length,
       filteredTotalCards: board.cards,
-      unDoneCards: _.flatMap(_.reject(_.reject(_.reject(board.lists, 'ignore'), 'done'), 'fail'), 'cards').length,
+      unDoneCards: _.flatMap(_.reject(_.reject(_.reject(board.lists,
+        'ignore'), 'done'), 'fail'), 'cards').length,
       lists: listData
     };
   });
@@ -55,7 +56,8 @@ const generateDate = (preGist) => {
     data: {
       totalCards: _.flatMap(_.flatMap(preGist.boards, 'lists'), 'cards').length,
       filteredTotalCards: _.sum(_.flatMap(preGist.boards, 'cards')),
-      unDoneCards: _.flatMap(_.reject(_.reject(_.reject(_.flatMap(_.reject(preGist.boards, 'ignore'), 'lists'), 'ignore'), 'done'), 'fail'), 'cards').length,
+      unDoneCards: _.flatMap(_.reject(_.reject(_.reject(_.flatMap(_.reject(preGist.boards,
+        'ignore'), 'lists'), 'ignore'), 'done'), 'fail'), 'cards').length,
       boards: boardData
     }
   };
@@ -71,9 +73,9 @@ const retDataNames = (min, max, justMax) => {
         const numericalDate = Number.parseInt(e, 10);
         return numericalDate;
       });
-      //  fuck you linter; these filtering lines are gorgeous.
-      if (min) times = _.filter(times, (e) => { return (e >= min); });
-      if (max) times = _.filter(times, (e) => { return (e <= max); });
+      //  Eat me eslint. These lines return a range beautifully.
+      if (min) times = _.filter(times, (e) => { return (e >= min); }); // eslint-disable-line
+      if (max) times = _.filter(times, (e) => { return (e <= max); }); // eslint-disable-line
       if (justMax) times = times[times.length - 1];
       return resolve(times);
     }).fail((error) => {

@@ -11,6 +11,7 @@ const err = (error) => {
 
 app.use('/css', express.static(`${__dirname}/css`));
 app.use('/js', express.static(`${__dirname}/js`));
+app.use('/data', express.static(`${__dirname}/data`));
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 

@@ -2,14 +2,15 @@
 
 window.back = {
   angle: 0,
-  fps: 30
+  fps: 15
 };
 let back = window.back;
 
 const between = (min, max) => {
-  return Math.floor((Math.random() * (max - min + 1)) + min);
+  const tween = Math.floor((Math.random() * (max - min + 1)) + min);
+  return tween;
 };
-const tF = () => {
+const tF = () => { // eslint-disable-line
   const trueOrFalse = Boolean(between(0, 1));
   return trueOrFalse;
 };
@@ -62,13 +63,12 @@ const objUpdate = (obj) => {
       streak: between(Math.floor(back.fps / 2), back.fps * mult),
       upDownStop: between(-1, 1)
     };
-  } else {
-    return {
-      type: obj.type,
-      streak: obj.streak - 1,
-      upDownStop: obj.upDownStop
-    };
   }
+  return {
+    type: obj.type,
+    streak: obj.streak - 1,
+    upDownStop: obj.upDownStop
+  };
 };
 const iterate = (colorObj) => {
   const newColorObj = colorObj;
@@ -91,6 +91,6 @@ const updateBackground = (state) => {
   return nextState;
 };
 
-var interval = setInterval(() => {
+window.interval = setInterval(() => {
   back = updateBackground(back);
 }, 10);

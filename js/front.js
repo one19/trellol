@@ -57,30 +57,33 @@ const redrawPage = (obj, preGist) => {
   }
   $('.topBar').append(button);
 
+  // LOLNO linting, these get called well after doc interp.
   if (preGist.state.page === 'board') {
-    boardsPage(preGist);
+    boardsPage(preGist); // eslint-disable-line
   } else if (preGist.state.page === 'list') {
-    listsPage(obj, preGist);
+    listsPage(obj, preGist); // eslint-disable-line
   } else {
-    cardsPage(obj, preGist);
+    cardsPage(obj, preGist); // eslint-disable-line
   }
 };
 
 $('body').on('click', 'h2.button', (e) => {
   const newGist = window.preGist;
   switch (e.currentTarget.id) {
-    case 'getGist':
+    case 'getGist': {
       $('#getGist').removeClass('button').text('Loading...');
       Trello.get('/member/me/boards', getBoards, error);
       break;
-    case 'boards':
+    }
+    case 'boards': {
       //  window.history.pushState({}, 'Home', '/');
       $('.alert').text('');
       newGist.state.page = 'board';
       setGist(newGist);
       redrawPage(null, newGist);
       break;
-    case 'lists':
+    }
+    case 'lists': {
       $('.alert').text('');
       const boardId = newGist.state.obj.idBoard;
       //  window.history.pushState({}, "Home", '/' + idBoard);
@@ -89,17 +92,24 @@ $('body').on('click', 'h2.button', (e) => {
       setGist(newGist);
       redrawPage(newGist.state.obj, newGist);
       break;
-    case 'ignore':
+    }
+    case 'ignore': {
       newGist.state.ignore = false;
       setGist(newGist);
       redrawPage(newGist.state.obj, newGist);
       break;
-    case 'noignore':
+    }
+    case 'noignore': {
       newGist.state.ignore = true;
       setGist(newGist);
       redrawPage(newGist.state.obj, newGist);
       break;
-    default: // travel between views
+    }
+    case 'graph': {
+      console.log('board button pressed')
+      break;
+    }
+    default: { // travel between views
       if (newGist.state.page === 'board') {
         const board = _.find(newGist.boards, { id: e.currentTarget.id });
         //  window.history.pushState(board, board.name, '/' + board.id);
@@ -120,12 +130,17 @@ $('body').on('click', 'h2.button', (e) => {
         win.focus();
       }
       break;
+    }
   }
 });
 $('body').on('click', 'div.checkbox', (e) => {
   const newGist = window.preGist;
   const c = $(`input.${e.currentTarget.className.split(' ').join('.')}`);
-  (c.attr('checked'))? c.attr('checked', false): c.attr('checked', true);
+  if (c.attr('checked')) { // fine linter, fine, no ternaries
+    c.attr('checked', false);
+  } else {
+    c.attr('checked', true);
+  }
 
   if (!newGist.blackList) newGist.blackList = { boards: [], lists: [] };
   const classes = e.currentTarget.className;
@@ -143,7 +158,7 @@ $('body').on('click', 'div.checkbox', (e) => {
         _.pull(newGist.blackList.boards, targetID);
       }
     } else if (classes.match(/done|fail/gi)) {
-      console.log('Congrats; you\'re a retard.');
+      console.warn('Congrats; you\'re a retard.');
     } else if (classes.match(/order/gi)) {
       if (newGist.boards[bN].order) {
         newGist.boards[bN].order = false;
@@ -202,34 +217,32 @@ $('body').on('click', 'div.checkbox', (e) => {
         return $('.alert').text('No designated DONE list.');
       } else if (doneList.id === newGist.state.obj.id) {
         return $('.alert').text('This task is already done.');
-      } else {
-        const dN = _.findIndex(newGist.boards[bN].lists, { id: doneList.id });
-        const removed = newGist.boards[bN].lists[lN].cards.splice(cN, 1)[0];
-        newGist.state.obj = newGist.boards[bN].lists[lN];
-        removed.done = true;
-        newGist.boards[bN].lists[dN].cards.push(removed);
-        if (!newGist.boards[bN].lists[lN].doneCards) newGist.boards[bN].lists[lN].doneCards = [];
-        newGist.boards[bN].lists[lN].doneCards.push(targetID);
-        moveCardToList(targetID, doneList.id);
       }
+      const dN = _.findIndex(newGist.boards[bN].lists, { id: doneList.id });
+      const removed = newGist.boards[bN].lists[lN].cards.splice(cN, 1)[0];
+      newGist.state.obj = newGist.boards[bN].lists[lN];
+      removed.done = true;
+      newGist.boards[bN].lists[dN].cards.push(removed);
+      if (!newGist.boards[bN].lists[lN].doneCards) newGist.boards[bN].lists[lN].doneCards = [];
+      newGist.boards[bN].lists[lN].doneCards.push(targetID);
+      moveCardToList(targetID, doneList.id);
     } else if (classes.match(/ignore|order/gi)) {
-      console.log('Congrats; you\'re a retard.');
+      console.warn('Congrats; you\'re a retard.');
     } else if (classes.match(/fail/gi)) {
       const failList = _.find(newGist.boards[bN].lists, { fail: true });
       if (!failList) {
         return $('.alert').text('No designated FAILURE list.');
       } else if (failList.id === newGist.state.obj.id) {
         return $('.alert').text('You failed at this task already.');
-      } else {
-        const fN = _.findIndex(newGist.boards[bN].lists, { id: failList.id });
-        const removed = newGist.boards[bN].lists[lN].cards.splice(cN, 1)[0];
-        newGist.state.obj = newGist.boards[bN].lists[lN];
-        removed.fail = true;
-        newGist.boards[bN].lists[fN].cards.push(removed);
-        if (!newGist.boards[bN].lists[lN].doneCards) newGist.boards[bN].lists[lN].doneCards = [];
-        newGist.boards[bN].lists[lN].doneCards.push(targetID);
-        moveCardToList(targetID, failList.id);
       }
+      const fN = _.findIndex(newGist.boards[bN].lists, { id: failList.id });
+      const removed = newGist.boards[bN].lists[lN].cards.splice(cN, 1)[0];
+      newGist.state.obj = newGist.boards[bN].lists[lN];
+      removed.fail = true;
+      newGist.boards[bN].lists[fN].cards.push(removed);
+      if (!newGist.boards[bN].lists[lN].doneCards) newGist.boards[bN].lists[lN].doneCards = [];
+      newGist.boards[bN].lists[lN].doneCards.push(targetID);
+      moveCardToList(targetID, failList.id);
     }
   }
   setGist(newGist);
@@ -238,11 +251,11 @@ $('body').on('click', 'div.checkbox', (e) => {
 });
 $('body').on('click', 'div.logo', (e) => {
   if (window.interval !== 0) {
-    clearInterval(interval);
-    interval = 0;
+    clearInterval(window.interval);
+    window.interval = 0;
   } else {
-    interval = setInterval(function() {
-      back = updateBackground(back);
+    window.interval = setInterval(() => {
+      window.back = updateBackground(back);
     }, 10);
   }
   return e;
@@ -254,10 +267,11 @@ const styleBlob = (blob, obj, preGist) => {
   let pcDate;
 
   if (!blob.type) {
-    return console.log('Way to go dingus, you hid all of everything.');
+    return console.warn('Way to go dingus, you hid all of everything.');
   } else if (blob.type === 'board') {
     let filteredBoards = _.filter(preGist.boards, (e) => {
-      return !(preGist.blackList.boards.includes(e.id));
+      const inBlackList = !(preGist.blackList.boards.includes(e.id));
+      return inBlackList;
     });
     //  fixes the odd case of all-hidden boards resulting in errors
     if ((filteredBoards.length === 0) && !preGist.state.ignore) {
@@ -282,7 +296,11 @@ const styleBlob = (blob, obj, preGist) => {
     } else {
       sampled = _.sample(_.sample(blob.lists).cards);
     }
-    (!sampled)? raCard = 'EMPTY LIST': raCard = sampled.name;
+    if (!sampled) {
+      raCard = 'EMPTY LIST';
+    } else {
+      raCard = sampled.name;
+    }
     obj.attr('title', `CARDS: ${blob.cards} \nRANDOM CARD: ${raCard}`);
     boardBack = blob.back;
     ret['font-size'] = `${rScale(10, 45, minLists, maxLists, blob.lists.length)}px`;
@@ -305,10 +323,15 @@ const styleBlob = (blob, obj, preGist) => {
       sampled = _.sample(blob.cards);
     }
     boardBack = preGist.state.obj.back;
-    (!sampled)? raCard = 'EMPTY LIST': raCard = sampled.name;
+    if (!sampled) {
+      raCard = 'EMPTY LIST';
+    } else {
+      raCard = sampled.name;
+    }
 
     obj.attr('title', `CARDS: ${blob.cards.length}\nRANDOM CARD: ${raCard}`);
-    ret['font-size'] = `${rScale(10, 45,preGist.state.minCards, preGist.state.maxCards, blob.cards.length)}px`;
+    ret['font-size'] = `${rScale(10, 45, preGist.state.minCards,
+      preGist.state.maxCards, blob.cards.length)}px`;
   } else if (blob.type === 'card') {
     boardBack = _.find(preGist.boards, { id: blob.idBoard }).back;
     const lastDNum = new Date(blob.dateLastActivity).valueOf();
@@ -323,10 +346,10 @@ const styleBlob = (blob, obj, preGist) => {
 };
 
 const createBlob = (blob, preGist) => {
-  let ignoreChecked;
-  let doneChecked;
-  let orderChecked;
-  let failChecked;
+  let ignoreChecked = '';
+  let doneChecked = '';
+  let orderChecked = '';
+  let failChecked = '';
   if (blob.ignore) ignoreChecked = ' checked="true"';
   if (blob.done) doneChecked = ' checked="true"';
   if (blob.order) orderChecked = ' checked="true"';
@@ -339,7 +362,7 @@ const createBlob = (blob, preGist) => {
     });
   } else { cardAtt = ''; }
   const ret = $(
-    `<div class="${blob.type} button ${blob.id}">\n
+    `<div class="${blob.type} button ${blob.id} over">\n
       <h2 class="main ${blob.type} button" id="${blob.id}">${blob.name}</h2>\n
       <div class="checkbox ignore ${blob.type} ${blob.id}">\n
         <p class="checkbox ignore ${blob.type} ${blob.id}">Ignore: </p>\n
