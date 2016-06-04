@@ -41,14 +41,13 @@ const colorConstructor = () => {
 back.color1 = colorConstructor();
 back.color2 = colorConstructor();
 
+// WANT TO SEE ME CUT MY RENDER STRESS BY 3/4???
+
 const setBack = (state) => {
   const $back = $('.background');
   $back.css({ height: `${window.innerHeight}px`,
     width: `${window.innerWidth}px` });
-  const leads = ['-webkit-linear-gradient',
-    '-moz-linear-gradient',
-    '-o-linear-gradient',
-    'linear-gradient'];
+  const leads = ['linear-gradient'];
   leads.forEach((lead) => {
     $back.css('background-image', `${lead}(${state.angle}deg, #${state.color1.value.toHex()}
      0%, #${state.color2.value.toHex()} 100%)`);

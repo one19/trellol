@@ -37,6 +37,22 @@ const styleBack = (obj, ret) => {
   }
   return backRet;
 };
+const renderGraph = (shouldGraph, graphContents) => {
+  const biggun = $('<div id="biggun"></div>').css({ 'z-index': 998 });
+  const graphBack = $('<div id="graphBack"></div>');
+  if (shouldGraph) {
+    $('#graph').text(' < ').css({ 'z-index': 999 });
+    $('.container').css({ '-webkit-filter': 'blur(3px)' });
+    $('.topBar').css({ '-webkit-filter': 'blur(3px)' });
+    $('body').append(biggun, graphBack);
+  } else {
+    $('#graph').text(' > ').css({ 'z-index': 3 });
+    $('.container').css({ '-webkit-filter': 'blur(0px)' });
+    $('.topBar').css({ '-webkit-filter': 'blur(0px)' });
+    $('#biggun').remove();
+    $('#graphBack').remove();
+  }
+};
 const killIgnoreButton = () => {
   $('#ignore').remove();
   $('#noignore').remove();
@@ -65,6 +81,7 @@ const redrawPage = (obj, preGist) => {
   } else {
     cardsPage(obj, preGist); // eslint-disable-line
   }
+  renderGraph(preGist.state.graph, obj);
 };
 
 $('body').on('click', 'h2.button', (e) => {
@@ -106,7 +123,14 @@ $('body').on('click', 'h2.button', (e) => {
       break;
     }
     case 'graph': {
-      console.log('board button pressed')
+      if (!newGist.state.graph) {
+        newGist.state.graph = true;
+        setGist(newGist);
+      } else {
+        newGist.state.graph = false;
+        setGist(newGist);
+      }
+      redrawPage(newGist.state.obj, newGist);
       break;
     }
     default: { // travel between views
