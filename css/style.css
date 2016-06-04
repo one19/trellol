@@ -41,9 +41,6 @@ h2 {
   width: 960px;
   margin: 0 auto;
 }
-.topBar {
-  position: relative;
-}
 .alert {
   display: inline-block;
   background-color: pink;
@@ -69,6 +66,14 @@ div.store{
 }
 .board.button, .list.button, .card.button {
   margin: 0 auto;
+}
+.over {
+  overflow: hidden;
+  border-radius: 50%;
+}
+.over:hover {
+  overflow: visible;
+  border-radius: 4px;
 }
 
 p.checkbox {
@@ -113,9 +118,16 @@ a.attachments {
   border-top-right-radius: 10px;
 }
 .topBar {
+  position: relative;
+  width: 100%;
   background-color: rgba(255,255,255, .8);
   margin-bottom: 20px;
+  top: -3px;
+  left: -3px;
   padding: 3px;
+  padding-top: 6px;
+  padding-right: 9px;
+  padding-left: 6px;
 }
 .background {
   position: fixed;
@@ -129,6 +141,7 @@ a.attachments {
 
 #ignore, #noignore {
   float: right;
+  margin-right: 9px;
   clear: both;
 }
 #logo {
@@ -149,7 +162,7 @@ a.attachments {
 }
 #graphBack {
   width: 80%;
-  height: 80vw;
+  height: 60vw;
   position: fixed;
   top: 10%;
   left: 10%;
