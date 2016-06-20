@@ -1,5 +1,6 @@
 /*  global $ _ tinycolor Trello */
 /*  global moveCardToList setGist updateBackground getBoards error */
+/*  global shouldStore getObjects writeObject generateDate retDataNames */
 /*  global emptyState back */
 
 const preCacheBigAssets = (preGist) => {
