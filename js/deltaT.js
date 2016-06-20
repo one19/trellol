@@ -32,6 +32,21 @@ const getObjects = (timeStamps, justMax) => {
   });
   return times;
 };
+const writeObject = (nowObject) => { // eslint-disable-line
+  const write = new Promise((resolve, reject) => {
+    $.post('/data', {
+      dataType: 'json',
+      data: JSON.stringify(nowObject)
+    }).done((data) => {
+      console.log('Data written!', data);
+      return resolve(data);
+    }).fail((error) => {
+      console.log('jQuery post error!');
+      return reject(error);
+    });
+  });
+  return write;
+};
 
 const generateDate = (preGist) => { // eslint-disable-line
   const boardData = preGist.boards.map((board) => {
