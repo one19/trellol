@@ -21,8 +21,7 @@ const getObjects = (timeStamps, justMax) => {
       dataType: 'json',
       data: JSON.stringify(timeStamps)
     }).done((data) => {
-      console.log('data', data);
-      window.graph = data;
+      console.log('old objects data', data);
       return resolve(data);
     }).fail((error) => {
       console.log('jQuery post error!');
@@ -63,27 +62,32 @@ const generateDate = (preGist) => {
   };
 };
 
-const retDataNames = (min, max, justMax) => {
+const compareNumber = (a, b) => {
+  const compared = a - b;
+  return compared;
+};
+const retDataNames = (min, max, justMax) => { // eslint-disable-line
   const histFiltered = new Promise((resolve, reject) => {
     $.getJSON('/data').done((data) => {
-      let times = _.filter(data.data, (e) => {
+      let times = [];
+      if (_.isEqual(data.data, [])) return resolve(times);
+
+      times = _.filter(data.data, (e) => {
         if (!!Number.parseInt(e, 10)) return true;
         return false;
       }).map((e) => {
         const numericalDate = Number.parseInt(e, 10);
         return numericalDate;
-      });
+      }).sort(compareNumber);
+
       //  Eat me eslint. These lines return a range beautifully.
       if (min) times = _.filter(times, (e) => { return (e >= min); }); // eslint-disable-line
       if (max) times = _.filter(times, (e) => { return (e <= max); }); // eslint-disable-line
-      if (justMax) times = times[times.length - 1];
+      if (justMax) times = [times[times.length - 1]];
       return resolve(times);
-    }).fail((error) => {
-      reject(error);
+    }).fail((error) => { // eslint-disable-line
+      return reject(error);
     });
-  }).then((times) => {
-    const filteredObjects = getObjects(times, justMax);
-    return filteredObjects;
   });
   return histFiltered;
 };

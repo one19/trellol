@@ -38,7 +38,7 @@ app.get('/data', (req, res) => {
 
 app.post('/data', (req, res) => {
   new Promise((resolve, reject) => {
-    fs.writeFile(`data/${Date.now()}.json`, req.body, (error, data) => {
+    fs.writeFile(`data/${Date.now()}.json`, JSON.stringify(req.body), (error, data) => {
       if (error) return reject(error);
       return resolve(data);
     });
