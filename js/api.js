@@ -104,7 +104,10 @@ const getBoards = (allBoards) => { // eslint-disable-line
   const all = [];
   allBoards.forEach((b) => {
     const p = new Promise((res, reject) => {
-      Trello.get(`/boards/${b.id}?fields=all&cards=all&card_fields=all&card_attachments=true&lists=all&list_fields=all&members=all&member_fields=all&checklists=all&checklist_fields=all&organization=false`, res, reject); // eslint-disable-line
+      Trello.get(`/boards/${b.id}?fields=all&cards=all&
+      card_fields=all&card_attachments=true&lists=all&list_fields=all&
+      members=all&member_fields=all&checklists=all&checklist_fields=all&
+      organization=false`, res, reject);
     });
     all.push(p);
   });
