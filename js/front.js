@@ -423,6 +423,7 @@ const boardsPage = (preGist) => {
     return !(preGist.blackList.boards.includes(e.id));
   });
   const fCards = _.map(filterBoards, 'lists').map((board) => {
+    if (_.flatMap(board, 'cards').length === 0) return new Date();
     const latestCard = _.maxBy(_.flatMap(board, 'cards'), 'dateLastActivity').dateLastActivity;
     return latestCard;
   });

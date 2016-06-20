@@ -21,9 +21,9 @@ app.get('/', (req, res) => {
 
 app.get('/data', (req, res) => {
   new Promise((resolve, reject) => {
-    // if (err) throw error; //this errors, find out why
     fs.readdir('./data', (error, list) => {
       if (error) return reject(error);
+      if (list === []) return list;
       return resolve(list.map((e) => {
         const shortened = e.slice(0, -5);
         return shortened;
