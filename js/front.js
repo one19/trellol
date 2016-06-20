@@ -45,6 +45,7 @@ const renderGraph = (shouldGraph, graphContents) => {
     $('.container').css({ '-webkit-filter': 'blur(3px)' });
     $('.topBar').css({ '-webkit-filter': 'blur(3px)' });
     $('body').append(biggun, graphBack);
+    console.log('TODO: ', graphContents);
   } else {
     $('#graph').text(' > ').css({ 'z-index': 3 });
     $('.container').css({ '-webkit-filter': 'blur(0px)' });
@@ -89,6 +90,14 @@ $('body').on('click', 'h2.button', (e) => {
   switch (e.currentTarget.id) {
     case 'getGist': {
       $('#getGist').removeClass('button').text('Loading...');
+      retDataNames(null, null, true).then((latestDate) => {
+        getObjects(latestDate).then((lastObj) => {
+          const nowObj = generateDate(newGist);
+          const lastJSON = JSON.parse(lastObj.data[0].data);
+          if (shouldStore(lastJSON, nowObj)) return writeObject(nowObj);
+          return false;
+        });
+      });
       Trello.get('/member/me/boards', getBoards, error);
       break;
     }
