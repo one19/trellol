@@ -1,14 +1,16 @@
 /*  global $ _ tinycolor Trello */
-const shouldStore = (lastObj, thisObj) => {
+
+const shouldStore = (lastObj, thisObj) => { // eslint-disable-line
+  if (lastObj === null) return true;
   if (_.isEqual(lastObj.data, thisObj.data)) return false;
   const hour = 1000 * 60 * 60;
-  if (lastObj.date + hour >= thisObj.date) return false;
+  if (Number(lastObj.date) + hour >= Number(thisObj.date)) return false;
   return true;
 };
-const diffCards = (listId, addedOrDone, preGist) => {
+const diffCards = (boardId, listId, addedOrDone, preGist) => {
   const newGist = preGist;
-  const board = _.find(preGist.boards, { id: listId });
-  const bN = board.id;
+  const board = _.find(preGist.boards, { id: boardId });
+  const bN = _.findIndex(preGist.boards, { id: boardId });
   const lN = _.findIndex(board.lists, { id: listId });
   const diffyCards = preGist.boards[bN].lists[lN][addedOrDone];
   if (diffyCards) delete newGist.boards[bN].lists[lN][addedOrDone];
@@ -31,14 +33,14 @@ const getObjects = (timeStamps, justMax) => {
   return times;
 };
 
-const generateDate = (preGist) => {
+const generateDate = (preGist) => { // eslint-disable-line
   const boardData = preGist.boards.map((board) => {
     const listData = board.lists.map((list) => { // eslint-disable-line
       return {
         id: list.id,
         totalCards: list.cards.length,
-        removedCards: diffCards(list.id, 'doneCards', preGist),
-        addedCards: diffCards(list.id, 'addedCards', preGist)
+        removedCards: diffCards(board.id, list.id, 'doneCards', preGist),
+        addedCards: diffCards(board.id, list.id, 'addedCards', preGist)
       };
     });
     return {
