@@ -17,7 +17,7 @@ const diffCards = (boardId, listId, addedOrDone, preGist) => {
   window.preGist = newGist;
   return diffyCards;
 };
-const getObjects = (timeStamps, justMax) => {
+const getObjects = (timeStamps) => { // eslint-disable-line
   const times = new Promise((resolve, reject) => {
     $.post('/times', {
       dataType: 'json',
