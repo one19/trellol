@@ -1,19 +1,20 @@
 /*  global $ _ tinycolor Trello */
 
-window.back = {
-  angle: 0,
-  fps: 15
-};
-let back = window.back;
-
 const between = (min, max) => {
   const tween = Math.floor((Math.random() * (max - min + 1)) + min);
   return tween;
 };
-const tF = () => { // eslint-disable-line
+const tF = () => {
   const trueOrFalse = Boolean(between(0, 1));
   return trueOrFalse;
 };
+window.back = {
+  angle: 0,
+  fps: 15,
+  truthy: tF()
+};
+let back = window.back;
+
 const colorConstructor = () => {
   const colorObject = {
     value: tinycolor.random(),
@@ -48,13 +49,18 @@ const setBack = (state) => {
   const $back = $('.background');
   $back.css({ height: `${window.innerHeight}px`,
     width: `${window.innerWidth}px` });
-  const leads = ['linear-gradient'];
-  leads.forEach((lead) => {
-    $back.css('background-image', `${lead}(${state.angle}deg,
+  if (window.back.truthy) {
+    $back.css('background-image', `radial-gradient(
       #${state.color1.value.toHex()} 0%,
       #${state.color2.value.toHex()} 50%,
       #${state.color3.value.toHex()} 100%)`);
-  });
+  } else {
+    $back.css('background-image', `linear-gradient(
+      ${state.angle}deg,
+      #${state.color1.value.toHex()} 0%,
+      #${state.color2.value.toHex()} 50%,
+      #${state.color3.value.toHex()} 100%)`);
+  }
 };
 const objUpdate = (obj) => {
   if (obj.streak <= 0) {
