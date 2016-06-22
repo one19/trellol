@@ -1,6 +1,6 @@
 /*  global $ _ tinycolor Trello */
 /*  global moveCardToList setGist updateBackground getBoards error */
-/*  global shouldStore getObjects writeObject generateDate retDataNames */
+/*  global shouldStore getObjects writeObject generateDate retDataNames nvRender*/
 /*  global emptyState back */
 
 const preCacheBigAssets = (preGist) => {
@@ -40,13 +40,14 @@ const styleBack = (obj, ret) => {
 };
 const renderGraph = (shouldGraph, graphContents) => {
   const biggun = $('<div id="biggun"></div>').css({ 'z-index': 998 });
-  const graphBack = $('<div id="graphBack"></div>');
+  const graphBack = $('<div id="graphBack"><svg></div>');
   if (shouldGraph) {
     $('#graph').text(' < ').css({ 'z-index': 999 });
     $('.container').css({ '-webkit-filter': 'blur(3px)' });
     $('.topBar').css({ '-webkit-filter': 'blur(3px)' });
     $('body').append(biggun, graphBack);
-    console.log('TODO: ', graphContents);
+    console.log('CGPCGO', graphContents.page, graphContents.obj);
+    nvRender(graphContents.page, graphContents.obj);
   } else {
     $('#graph').text(' > ').css({ 'z-index': 3 });
     $('.container').css({ '-webkit-filter': 'blur(0px)' });
@@ -83,7 +84,8 @@ const redrawPage = (obj, preGist) => {
   } else {
     cardsPage(obj, preGist); // eslint-disable-line
   }
-  renderGraph(preGist.state.graph, obj);
+  console.log('wtfpregist', preGist.state.graph, obj);
+  renderGraph(preGist.state.graph, preGist.state);
 };
 
 $('body').on('click', 'h2.button', (e) => {
