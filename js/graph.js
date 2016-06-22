@@ -1,17 +1,26 @@
 /* global _ */
 /*  global shouldStore getObjects writeObject generateDate retDataNames d3 nv */
-const filterBoards = (allBoards, preGist) => {
-  const someBoards = allBoards.filter((board) => {
+const filterBoards = (allObj, preGist) => {
+  const someBoards = allObj.filter((single) => {
     if (!preGist.state.ignore) return true;
-    const shouldFilter = !_.includes(preGist.blackList.boards, board.key);
+    let shouldFilter;
+    if (preGist.state.page === 'board') {
+      shouldFilter = !_.includes(preGist.blackList.boards, single.key);
+    } else if (preGist.state.page === 'list') {
+      shouldFilter = !_.includes(preGist.blackList.lists, single.key);
+    }
     return shouldFilter;
   });
   return someBoards;
 };
-const populateName = (fullObj, preGist) => {
-  const named = fullObj.map((board) => {
-    const retBoard = { values: board.values };
-    retBoard.key = _.find(preGist.boards, { id: board.key }).name;
+const populateName = (allObj, preGist) => {
+  const named = allObj.map((single) => {
+    const retBoard = { values: single.values };
+    if (preGist.state.page === 'board') {
+      retBoard.key = _.find(preGist.boards, { id: single.key }).name;
+    } else if (preGist.state.page === 'list') {
+      retBoard.key = _.find(preGist.state.obj.lists, { id: single.key }).name;
+    }
     return retBoard;
   });
   return named;
@@ -21,18 +30,18 @@ const compareNested = (a, b) => {
   return compared;
 };
 const padder = (allDates, nestedArraysObj) => {
-  const fullNestedArrays = nestedArraysObj.data.map((board) => {
-    if (board.values.length === allDates.length) return board;
+  const fullNestedArrays = nestedArraysObj.data.map((single) => {
+    if (single.values.length === allDates.length) return single;
     allDates.forEach((date) => {
-      if (!_.includes(_.flatMap(board.values), date)) {
-        board.values.push([date, 0]);
+      if (!_.includes(_.flatMap(single.values), date)) {
+        single.values.push([date, 0]);
       }
     });
-    const boardSorted = {
-      key: board.key,
-      values: board.values.sort(compareNested)
+    const singleSorted = {
+      key: single.key,
+      values: single.values.sort(compareNested)
     };
-    return boardSorted;
+    return singleSorted;
   });
   return fullNestedArrays;
 };
@@ -43,9 +52,9 @@ const formatData = (histData, page, preGist) => {
   });
   const formattedData = { data: [] };
   const theseDates = [];
-  if (page === 'board') {
-    flatData.forEach((date) => {
-      theseDates.push(date.date);
+  flatData.forEach((date) => {
+    theseDates.push(date.date);
+    if (page === 'board') {
       date.data.boards.forEach((board) => {
         const existKeyIndex = _.findIndex(formattedData.data, (o) => {
           const wasFound = o.key === board.id;
@@ -62,8 +71,26 @@ const formatData = (histData, page, preGist) => {
           );
         }
       });
-    });
-  }
+    } else if (page === 'list') {
+      const bN = _.findIndex(date.data.boards, { id: preGist.state.obj.id });
+      date.data.boards[bN].lists.forEach((list) => {
+        const existKeyIndex = _.findIndex(formattedData.data, (o) => {
+          const wasFound = o.key === list.id;
+          return wasFound;
+        });
+        if (existKeyIndex < 0) {
+          formattedData.data.push({
+            key: list.id,
+            values: [[date.date, list.totalCards]]
+          });
+        } else {
+          formattedData.data[existKeyIndex].values.push(
+            [date.date, list.totalCards]
+          );
+        }
+      });
+    }
+  });
   const fullFormattedData = padder(theseDates, formattedData);
   const fullFilteredData = filterBoards(fullFormattedData, preGist);
   const fullNamedData = populateName(fullFilteredData, preGist);
