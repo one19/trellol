@@ -21,7 +21,7 @@ const padder = (allDates, nestedArraysObj) => {
   });
   return fullNestedArrays;
 };
-const formatData = (histData, page) => {
+const formatData = (histData, page, preGist) => {
   const flatData = histData.map((dat) => {
     const parsedDataPoint = JSON.parse(dat.data);
     return parsedDataPoint;
@@ -50,13 +50,15 @@ const formatData = (histData, page) => {
     });
   }
   const fullFormattedData = padder(theseDates, formattedData);
-  return fullFormattedData;
+  const fullFilteredData = filterBoards(fullFormattedData, preGist);
+  const fullNamedData = populateName(fullFilteredData, preGist);
+  return fullNamedData;
 };
-const nvRender = (page, pageObj) => { // eslint-disable-line
+const nvRender = (page, pageObj, preGist) => { // eslint-disable-line
   const week = 1000 * 60 * 60 * 24 * 7;
   retDataNames(Date.now() - week, null, null).then((names) => {
     getObjects(names).then((allData) => {
-      const graphData = formatData(allData.data, page);
+      const graphData = formatData(allData.data, page, preGist);
       window.graphData = graphData;
 
       nv.addGraph(() => {

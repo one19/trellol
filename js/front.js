@@ -38,7 +38,7 @@ const styleBack = (obj, ret) => {
   }
   return backRet;
 };
-const renderGraph = (shouldGraph, graphContents) => {
+const renderGraph = (shouldGraph, preGist) => {
   const biggun = $('<div id="biggun"></div>').css({ 'z-index': 998 });
   const graphBack = $('<div id="graphBack"><svg></div>');
   if (shouldGraph) {
@@ -46,7 +46,7 @@ const renderGraph = (shouldGraph, graphContents) => {
     $('.container').css({ '-webkit-filter': 'blur(3px)' });
     $('.topBar').css({ '-webkit-filter': 'blur(3px)' });
     $('body').append(biggun, graphBack);
-    nvRender(graphContents.page, graphContents.obj);
+    nvRender(preGist.state.page, preGist.state.obj, preGist);
   } else {
     $('#graph').text(' > ').css({ 'z-index': 3 });
     $('.container').css({ '-webkit-filter': 'blur(0px)' });
@@ -83,7 +83,7 @@ const redrawPage = (obj, preGist) => {
   } else {
     cardsPage(obj, preGist); // eslint-disable-line
   }
-  renderGraph(preGist.state.graph, preGist.state);
+  renderGraph(preGist.state.graph, preGist);
 };
 
 $('body').on('click', 'h2.button', (e) => {
