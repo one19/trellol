@@ -1,6 +1,21 @@
 /* global _ */
 /*  global shouldStore getObjects writeObject generateDate retDataNames d3 nv */
-
+const filterBoards = (allBoards, preGist) => {
+  const someBoards = allBoards.filter((board) => {
+    if (!preGist.state.ignore) return true;
+    const shouldFilter = !_.includes(preGist.blackList.boards, board.key);
+    return shouldFilter;
+  });
+  return someBoards;
+};
+const populateName = (fullObj, preGist) => {
+  const named = fullObj.map((board) => {
+    const retBoard = { values: board.values };
+    retBoard.key = _.find(preGist.boards, { id: board.key }).name;
+    return retBoard;
+  });
+  return named;
+};
 const compareNested = (a, b) => {
   const compared = a[0] - b[0];
   return compared;
