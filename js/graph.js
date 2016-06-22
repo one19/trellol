@@ -57,14 +57,13 @@ const nvRender = (page, pageObj) => { // eslint-disable-line
   retDataNames(Date.now() - week, null, null).then((names) => {
     getObjects(names).then((allData) => {
       const graphData = formatData(allData.data, page);
-      console.log('grapphhhdata', graphData);
       window.graphData = graphData;
 
       nv.addGraph(() => {
         const chart = nv.models.stackedAreaChart()
           .margin({ right: 100 })
-          .x(function(d) { return d[0] })
-          .y(function(d) { return d[1] })
+          .x((d) => { return d[0]; }) // eslint-disable-line
+          .y((d) => { return d[1]; }) // eslint-disable-line
           .useInteractiveGuideline(true)    // Tooltips which show all data points. Very nice!
           .rightAlignYAxis(true)      // Let's move the y-axis to the right side.
           .showControls(true)       // Allow user to choose 'Stacked', 'Stream', 'Expanded' mode.

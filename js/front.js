@@ -46,7 +46,6 @@ const renderGraph = (shouldGraph, graphContents) => {
     $('.container').css({ '-webkit-filter': 'blur(3px)' });
     $('.topBar').css({ '-webkit-filter': 'blur(3px)' });
     $('body').append(biggun, graphBack);
-    console.log('CGPCGO', graphContents.page, graphContents.obj);
     nvRender(graphContents.page, graphContents.obj);
   } else {
     $('#graph').text(' > ').css({ 'z-index': 3 });
@@ -84,7 +83,6 @@ const redrawPage = (obj, preGist) => {
   } else {
     cardsPage(obj, preGist); // eslint-disable-line
   }
-  console.log('wtfpregist', preGist.state.graph, obj);
   renderGraph(preGist.state.graph, preGist.state);
 };
 
