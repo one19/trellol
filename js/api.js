@@ -20,11 +20,11 @@ const error = (errorMsg) => {
   $('#alert').html(errorMsg);
   console.error('ERROR', errorMsg);
 };
-const moveCardToList = (cardId, listId) => { // eslint-disable-line
+const moveCardToList = (cardId, listId) => {
   console.log('moving a card from one place to another');
   Trello.put(`/cards/${cardId}/idList`, { value: listId });
 };
-const createCard = (listId, name, pos, due) => { // eslint-disable-line
+const createCard = (listId, name, pos, due) => {
   const p = pos || 'bottom';
   const d = due || null;
   const newCard = {
@@ -100,7 +100,7 @@ const getAll = (board, boardData) => {
   return newBoard;
 };
 
-const getBoards = (allBoards) => { // eslint-disable-line
+const getBoards = (allBoards) => {
   const all = [];
   allBoards.forEach((b) => {
     const p = new Promise((res, reject) => {

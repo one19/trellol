@@ -1,4 +1,5 @@
 /*  global $ _ tinycolor Trello */
+/* global renderGraph redrawPage updateBackground generateDate setGist */
 
 const between = (min, max) => {
   const tween = Math.floor((Math.random() * (max - min + 1)) + min);
@@ -42,8 +43,6 @@ const colorConstructor = () => {
 back.color1 = colorConstructor();
 back.color2 = colorConstructor();
 back.color3 = colorConstructor();
-
-// WANT TO SEE ME CUT MY RENDER STRESS BY 3/4???
 
 const setBack = (state) => {
   const $back = $('.background');

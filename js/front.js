@@ -170,7 +170,7 @@ $('body').on('click', 'h2.button', (e) => {
 $('body').on('click', 'div.checkbox', (e) => {
   const newGist = window.preGist;
   const c = $(`input.${e.currentTarget.className.split(' ').join('.')}`);
-  if (c.attr('checked')) { // fine linter, fine, no ternaries
+  if (c.attr('checked')) {
     c.attr('checked', false);
   } else {
     c.attr('checked', true);

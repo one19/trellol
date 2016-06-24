@@ -1,5 +1,6 @@
 /* global _ */
 /*  global shouldStore getObjects writeObject generateDate retDataNames d3 nv */
+
 const filterBoards = (allObj, preGist) => {
   const someBoards = allObj.filter((single) => {
     if (!preGist.state.ignore) return true;
@@ -96,7 +97,7 @@ const formatData = (histData, page, preGist) => {
   const fullNamedData = populateName(fullFilteredData, preGist);
   return fullNamedData;
 };
-const nvRender = (page, pageObj, preGist) => { // eslint-disable-line
+const nvRender = (page, pageObj, preGist) => {
   const week = 1000 * 60 * 60 * 24 * 7;
   retDataNames(Date.now() - week, null, null).then((names) => {
     getObjects(names).then((allData) => {
@@ -106,8 +107,8 @@ const nvRender = (page, pageObj, preGist) => { // eslint-disable-line
       nv.addGraph(() => {
         const chart = nv.models.stackedAreaChart()
           .margin({ right: 100 })
-          .x((d) => { return d[0]; }) // eslint-disable-line
-          .y((d) => { return d[1]; }) // eslint-disable-line
+          .x((d) => { return d[0]; })
+          .y((d) => { return d[1]; })
           .useInteractiveGuideline(true)    // Tooltips which show all data points. Very nice!
           .rightAlignYAxis(true)      // Let's move the y-axis to the right side.
           .showControls(true)       // Allow user to choose 'Stacked', 'Stream', 'Expanded' mode.

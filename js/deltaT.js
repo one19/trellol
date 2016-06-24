@@ -1,6 +1,6 @@
 /*  global $ _ tinycolor Trello */
 
-const shouldStore = (lastObj, thisObj) => { // eslint-disable-line
+const shouldStore = (lastObj, thisObj) => {
   if (lastObj === null) return true;
   if (_.isEqual(lastObj.data, thisObj.data)) return false;
   const hour = 1000 * 60 * 60;
@@ -17,40 +17,36 @@ const diffCards = (boardId, listId, addedOrDone, preGist) => {
   window.preGist = newGist;
   return diffyCards;
 };
-const getObjects = (timeStamps) => { // eslint-disable-line
+const getObjects = (timeStamps) => {
   const times = new Promise((resolve, reject) => {
     $.post('/times', {
       dataType: 'json',
       data: JSON.stringify(timeStamps)
     }).done((data) => {
-      console.log('old objects data', data);
       return resolve(data);
     }).fail((error) => {
-      console.log('jQuery post error!');
       return reject(error);
     });
   });
   return times;
 };
-const writeObject = (nowObject) => { // eslint-disable-line
+const writeObject = (nowObject) => {
   const write = new Promise((resolve, reject) => {
     $.post('/data', {
       dataType: 'json',
       data: JSON.stringify(nowObject)
     }).done((data) => {
-      console.log('Data written!', data);
       return resolve(data);
     }).fail((error) => {
-      console.log('jQuery post error!');
       return reject(error);
     });
   });
   return write;
 };
 
-const generateDate = (preGist) => { // eslint-disable-line
+const generateDate = (preGist) => {
   const boardData = preGist.boards.map((board) => {
-    const listData = board.lists.map((list) => { // eslint-disable-line
+    const listData = board.lists.map((list) => {
       return {
         id: list.id,
         totalCards: list.cards.length,
@@ -83,7 +79,7 @@ const compareNumber = (a, b) => {
   const compared = a - b;
   return compared;
 };
-const retDataNames = (min, max, justMax) => { // eslint-disable-line
+const retDataNames = (min, max, justMax) => {
   const histFiltered = new Promise((resolve, reject) => {
     $.getJSON('/data').done((data) => {
       let times = [];
@@ -97,12 +93,11 @@ const retDataNames = (min, max, justMax) => { // eslint-disable-line
         return numericalDate;
       }).sort(compareNumber);
 
-      //  Eat me eslint. These lines return a range beautifully.
-      if (min) times = _.filter(times, (e) => { return (e >= min); }); // eslint-disable-line
-      if (max) times = _.filter(times, (e) => { return (e <= max); }); // eslint-disable-line
+      if (min) times = _.filter(times, (e) => { return (e >= min); });
+      if (max) times = _.filter(times, (e) => { return (e <= max); });
       if (justMax) times = [times[times.length - 1]];
       return resolve(times);
-    }).fail((error) => { // eslint-disable-line
+    }).fail((error) => {
       return reject(error);
     });
   });
