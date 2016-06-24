@@ -1,6 +1,12 @@
 /*  global $ _ tinycolor Trello */
 /* global renderGraph redrawPage updateBackground generateDate setGist */
 
+const perfMon = (doAThing) => {
+  const t1 = performance.now();
+  doAThing();
+  const t2 = performance.now();
+  return t2 - t1;
+};
 const between = (min, max) => {
   const tween = Math.floor((Math.random() * (max - min + 1)) + min);
   return tween;
@@ -96,6 +102,43 @@ const updateBackground = (state) => {
   back.angle = nextState.angle + 1;
   if (back.angle > 360) back.angle = back.angle - 360;
   return nextState;
+};
+
+const fullSuite = (preGist, iterations = 50) => {
+  // perf testing for some non-destructive/changing methods
+  const retObj = {
+    renderGraph: [],
+    boardPage: [],
+    listsPage: [],
+    cardsPage: [],
+    updateBackground: [],
+    generateDate: [],
+    setGist: []
+  };
+  let runs = 0;
+  while (runs < iterations) {
+    retObj.renderGraph.push(
+      perfMon(renderGraph.bind(null, true, preGist)));
+    renderGraph(false, preGist);
+    retObj.boardPage.push(
+      perfMon(redrawPage.bind(null, null, preGist)));
+    retObj.listsPage.push(
+      perfMon(redrawPage.bind(null, _.sample(preGist.boards), preGist)));
+    retObj.cardsPage.push(
+      perfMon(redrawPage.bind(null, _.sample(_.sample(preGist.boards).lists), preGist)));
+    retObj.updateBackground.push(
+      perfMon(updateBackground.bind(null, window.back)));
+    retObj.generateDate.push(perfMon(generateDate.bind(null, preGist)));
+    retObj.setGist.push(perfMon(setGist.bind(null, preGist)));
+    runs ++;
+  }
+  Object.keys(retObj).forEach((key) => {
+    const keyTot = retObj[key].reduce((a, b) => {
+      return a + b;
+    });
+    retObj[key] = keyTot / (runs - 1);
+  });
+  return retObj;
 };
 
 window.interval = setInterval(() => {
