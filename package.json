@@ -4,7 +4,7 @@
   "description": "Funny little app for trello manipulation.",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Yay tests, those are thing!\"",
+    "test": "mocha test/test.js",
     "feign-death": "rm -rf ./* && git add . && git commit -m suicide && git push origin master",
     "run": "node web.js"
   },
@@ -29,6 +29,10 @@
     "trello": "^0.5.1"
   },
   "devDependencies": {
-    "eslint-config-prismatik": "^1.0.0"
+    "chromedriver": "^2.21.2",
+    "eslint-config-prismatik": "^1.0.0",
+    "mocha": "^2.5.3",
+    "selenium-webdriver": "^2.53.2",
+    "webpack": "^1.13.1"
   }
 }
