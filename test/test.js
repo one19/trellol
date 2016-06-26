@@ -14,25 +14,33 @@ const makeWebDriver = () => {
   return driver;
 };
 
-test.describe('Google Search', () => {
-  test.it('should work', () => {
+test.describe('Trellol HTML', () => {
+  test.it('Should load on default port.', () => {
     const driver = makeWebDriver();
-    driver.get('http://www.google.com');
-    const searchBox = driver.findElement(webdriver.By.name('q'));
-    searchBox.sendKeys('simple programmer');
-    searchBox.getAttribute('value').then((value) => {
-      assert.equal(value, 'simple programmer');
+    driver.get('http://localhost:3002');
+    const loadButton = driver.findElement(webdriver.By.id('getGist'));
+    loadButton.getAttribute('innerHTML').then((name) => {
+      assert.equal(name, 'RELOAD DATA');
     });
     driver.quit();
   });
-});
-
-
-test.describe('Trellol', () => {
-  test.it('Should load on default port.', () => {
-    const web = app.listen();
+  test.it('Should display the standard top bar.', () => {
     const driver = makeWebDriver();
-    driver.get('https://localhost:3002');
+    driver.get('http://localhost:3002');
+    const topNav = driver.findElement(webdriver.By.className('topBar'));
+    topNav.getAttribute('outerHTML').then((allHTML) => {
+      assert.equal(allHTML,
+  `<div class="topBar" style="-webkit-filter: blur(0px);">
+    <div class="logo" id="logo">
+      <div class="logo">Trel</div><div class="logoB">l.l</div>
+    </div>
+    <h2 class="button main clicked" id="getGist">RELOAD DATA</h2>
+    <div class="alert" id="alert"></div>
+    <div class="store" id="store"></div>
+    <div class="total" id="total">TOTAL CARDS: NaN</div>
+  <h2 class="button main" id="noignore">HIDE IGNORED</h2></div>`
+      );
+    });
     driver.quit();
   });
 });
