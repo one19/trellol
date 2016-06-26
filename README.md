@@ -13,22 +13,18 @@ run `npm run run` and visit `localhost:3002` or assign your port with PORT=`numb
 ###TODO
 * Refactor `front.js` into a cleaner collection of js files
 * Decide on DB use, or just JSON file store
-* Store localhost information to JSON file/DB
-* Add burndown screen
 * Add weekly information screen
 * MORE FUN THINGS WITH VISUALS
 
 ###TODO NEXT:
-* Package.json
 * Mirror gui commands to cli commands
-* Add command for launching configurator
 * Add webhooks for grabbing from Trello
 * Decide on electron use
 * Add card-movement commands to cli
 * Add CLI visuals
 * Import MD doc of headers/lists into board/list/cards
 
-###BUGS
+###~BUGS~ FEATURES:
 * Being a worthless app
 
 [See it in action!](http://trellol.bitballoon.com)
